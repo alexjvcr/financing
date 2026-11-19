@@ -1,0 +1,226 @@
+/* ==========================================================================
+   Enterprise (SAP Blue Crystal inspired) theme. Loaded after dashboard.css.
+   ========================================================================== */
+:root {
+    --sap-bg: #e3eaf4;
+    --sap-panel: #f4f7fb;
+    --sap-panel-head: linear-gradient(#f2f6fb, #d3e0f0);
+    --sap-border: #8ea8c8;
+    --sap-field-border: #7f9db9;
+    --sap-title: #1c3f73;
+    --sap-btn: linear-gradient(#ffffff, #dde6f2);
+    --sap-btn-hover: linear-gradient(#ffffff, #cbd9ec);
+    --sap-btn-border: #8ba3c3;
+    --sap-btn-text: #1c3f73;
+    --sap-gold: linear-gradient(#fff5c9, #efd16a);
+    --sap-gold-hover: linear-gradient(#fff9dc, #e8c755);
+    --sap-gold-border: #b39a3e;
+    --sap-gold-text: #3b2f00;
+    --sap-nav: linear-gradient(180deg, #2f5e9f 0%, #173b72 100%);
+    --sap-nav-hover: rgba(255, 255, 255, .12);
+    --sap-nav-active: linear-gradient(#7aa2d6, #4f7fc0);
+    --sap-topbar: linear-gradient(#fbfdff, #d9e5f3);
+    --sap-tab: linear-gradient(#eef3fa, #cfdcee);
+    --sap-tab-active: linear-gradient(#ffffff, #e4ecf7);
+    --sap-th: linear-gradient(#eef3fa, #d3e0f0);
+}
+
+[data-theme='dark'] {
+    --sap-bg: #0b1120;
+    --sap-panel: #111a2e;
+    --sap-panel-head: linear-gradient(#1c2a47, #15203a);
+    --sap-border: #2b3f66;
+    --sap-field-border: #3b5280;
+    --sap-title: #bcd2f5;
+    --sap-btn: linear-gradient(#26344f, #1a2539);
+    --sap-btn-hover: linear-gradient(#2d3d5c, #202d46);
+    --sap-btn-border: #3b5280;
+    --sap-btn-text: #d6e4fb;
+    --sap-gold: linear-gradient(#8f7425, #6b5516);
+    --sap-gold-hover: linear-gradient(#a1832a, #7a6119);
+    --sap-gold-border: #b39a3e;
+    --sap-gold-text: #fff6d6;
+    --sap-nav: linear-gradient(180deg, #0f1d3a 0%, #070d1c 100%);
+    --sap-nav-hover: rgba(255, 255, 255, .08);
+    --sap-nav-active: linear-gradient(#2b4a85, #1e3a70);
+    --sap-topbar: linear-gradient(#16233f, #0e172b);
+    --sap-tab: linear-gradient(#1b2945, #131d33);
+    --sap-tab-active: linear-gradient(#233456, #1a2745);
+    --sap-th: linear-gradient(#1c2a47, #15203a);
+}
+
+body { background: var(--sap-bg); }
+
+/* Navigation */
+.sidebar { background: var(--sap-nav); box-shadow: inset -1px 0 0 rgba(255, 255, 255, .08); }
+.sidebar-brand { border-bottom: 1px solid rgba(255, 255, 255, .12); }
+.brand-mark, [data-theme='dark'] .brand-mark { border-radius: 4px; background: var(--sap-gold); color: var(--sap-gold-text); border: 1px solid var(--sap-gold-border); }
+.nav-link { border-radius: 3px; color: #e3ecf9; }
+a.nav-link:hover, .logout-link:hover { background: var(--sap-nav-hover); color: #fff; }
+.nav-link.is-active, [data-theme='dark'] .nav-link.is-active { background: var(--sap-nav-active); color: #fff; font-weight: 700; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25); }
+.nav-section { color: #b9cdea; opacity: 1; border-bottom: 1px solid rgba(255, 255, 255, .15); padding-bottom: .3rem; }
+.sidebar-footer { border-top: 1px solid rgba(255, 255, 255, .12); }
+.avatar { background: var(--sap-gold); color: var(--sap-gold-text); border: 1px solid var(--sap-gold-border); }
+
+/* Top bar and footer */
+.topbar { background: var(--sap-topbar); border-bottom: 1px solid var(--sap-border); }
+.topbar-title { color: var(--sap-title); font-style: italic; font-weight: 700; }
+.icon-button, .user-button { border-color: var(--sap-btn-border); background: var(--sap-btn); color: var(--sap-btn-text); border-radius: 3px; }
+.icon-button:hover, .user-button:hover { background: var(--sap-btn-hover); }
+.page-footer { background: var(--sap-panel-head); border-top: 1px solid var(--sap-border); }
+
+/* Panels as group boxes */
+.card { border: 1px solid var(--sap-border); border-radius: 3px; background: var(--sap-panel); box-shadow: 0 1px 2px rgba(20, 50, 100, .12); }
+.card-title { margin: -1.25rem -1.25rem 1rem; padding: .55rem 1rem; border-bottom: 1px solid var(--sap-border); background: var(--sap-panel-head); color: var(--sap-title); font-size: .95rem; }
+.card-header { margin: -1.25rem -1.25rem 1rem; padding: .45rem 1rem; border-bottom: 1px solid var(--sap-border); background: var(--sap-panel-head); }
+.card-header .card-title { margin: 0; padding: 0; border: 0; background: none; }
+.stat-icon { border-radius: 3px; background: var(--sap-panel-head); color: var(--sap-title); border: 1px solid var(--sap-border); }
+
+/* Tables with light-blue headers and grid lines */
+th { background: var(--sap-th); color: var(--sap-title); border: 1px solid var(--sap-border); text-transform: none; letter-spacing: 0; font-size: .85rem; }
+td { border: 1px solid color-mix(in srgb, var(--sap-border) 55%, transparent); background: var(--surface); }
+tbody tr:hover td { background: color-mix(in srgb, var(--primary) 10%, var(--surface)); }
+.table-scroll thead th { background: var(--sap-th); }
+
+/* Buttons: grey-blue by default, gold for the main action */
+.btn, .btn-soft-primary, .btn-soft-danger, [data-theme='dark'] .btn-soft-primary, [data-theme='dark'] .btn-soft-danger {
+    border: 1px solid var(--sap-btn-border);
+    border-radius: 3px;
+    background: var(--sap-btn);
+    color: var(--sap-btn-text);
+    box-shadow: 0 1px 1px rgba(20, 50, 100, .15);
+}
+.btn:hover, .btn-soft-primary:hover, .btn-soft-danger:hover { background: var(--sap-btn-hover); }
+.btn-primary, .btn-success, [data-theme='dark'] .btn-primary, [data-theme='dark'] .btn-success {
+    border-color: var(--sap-gold-border);
+    background: var(--sap-gold);
+    color: var(--sap-gold-text);
+    box-shadow: 0 1px 2px rgba(120, 90, 0, .3);
+}
+.btn-primary:hover, .btn-success:hover { background: var(--sap-gold-hover); filter: none; border-color: var(--sap-gold-border); }
+.btn-danger { color: #b3261e; }
+.btn-lg { border-radius: 3px; }
+.form-actions-card { border-top: 1px solid var(--sap-border); }
+
+/* Flat fields with a thin border */
+.input-wrap, .form-field select, .card select { border-color: var(--sap-field-border); border-radius: 2px; background: #fff; color: #1b2433; }
+[data-theme='dark'] .input-wrap, [data-theme='dark'] .form-field select, [data-theme='dark'] .card select { background: #0d1424; color: var(--text); }
+.input-wrap input { background: transparent; border: 0; }
+.input-wrap:focus-within, .form-field select:focus,
+.form-section .input-wrap:focus-within, .form-section .form-field select:focus {
+    border-color: var(--sap-title);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+.affix, .form-section .affix { background: var(--sap-panel-head); color: var(--sap-title); border-color: var(--sap-field-border); }
+.form-field input:disabled, .form-field select:disabled { background: var(--surface-muted); }
+
+/* Form: title bar, tabs and group-box panels */
+.form-layout .form-section, .form-layout .line-info { --tone: var(--sap-title); }
+.form-hero { margin-bottom: 1rem; padding: .7rem 1.1rem; border: 1px solid var(--sap-border); border-radius: 3px; background: var(--sap-panel-head); }
+.hero-icon, [data-theme='dark'] .hero-icon { width: 2.4rem; height: 2.4rem; border-radius: 3px; background: var(--sap-gold); color: var(--sap-gold-text); border: 1px solid var(--sap-gold-border); box-shadow: none; }
+.hero-icon .icon { width: 1.3rem; height: 1.3rem; }
+.form-hero h2 { color: var(--sap-title); font-size: 1.35rem; font-style: italic; }
+.form-hero p { font-size: .95rem; }
+
+.tab-bar { display: flex; gap: .25rem; padding: 0 .5rem; margin-bottom: -1px; overflow-x: auto; }
+.tab {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    position: relative;
+    padding: .6rem 1.1rem;
+    border: 1px solid var(--sap-border);
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    background: var(--sap-tab);
+    color: color-mix(in srgb, var(--sap-title) 70%, transparent);
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.tab:hover { color: var(--sap-title); }
+.tab.is-active { background: var(--sap-tab-active); color: var(--sap-title); box-shadow: inset 0 2px 0 0 var(--sap-title); padding-bottom: calc(.6rem + 1px); }
+.tab .icon { width: 1.1rem; height: 1.1rem; }
+.tab-dot { width: .6rem; height: .6rem; border-radius: 50%; background: #c62828; }
+
+.form-layout .form-section { border: 1px solid var(--sap-border); border-radius: 0 3px 3px 3px; background: var(--sap-panel); }
+.form-main.has-tabs .form-section { box-shadow: 0 1px 3px rgba(20, 50, 100, .15); }
+.form-layout .form-section[hidden] { display: none; }
+.form-layout .form-section .section-header { background: var(--sap-panel-head); border-bottom: 1px solid var(--sap-border); padding: .6rem 1.1rem; }
+.form-layout .form-section .section-header h3 { font-size: 1.1rem; color: var(--sap-title); }
+.form-layout .form-section .section-icon, [data-theme='dark'] .form-layout .form-section .section-icon {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 3px;
+    background: var(--sap-gold);
+    color: var(--sap-gold-text);
+    border: 1px solid var(--sap-gold-border);
+    box-shadow: none;
+}
+.form-layout .form-section .section-icon .icon { width: 1.25rem; height: 1.25rem; }
+.form-main.has-tabs .form-section .section-header h3 { display: none; }
+.form-layout .form-section .form-field { border-bottom: 1px solid color-mix(in srgb, var(--sap-border) 35%, transparent); }
+.form-layout .form-section .form-field:last-child { border-bottom: 0; }
+.label-icon { color: var(--sap-title); }
+.form-layout .line-info { border-left: 1px solid var(--sap-border); background: var(--sap-panel); }
+.line-info .aside-title { margin: -1.25rem -1.25rem .85rem; padding: .55rem 1rem; border-bottom: 1px solid var(--sap-border); background: var(--sap-panel-head); color: var(--sap-title); }
+.line-info .highlight { background: var(--sap-panel-head); color: var(--sap-title); border: 1px solid var(--sap-border); border-radius: 3px; }
+.usage span { background: var(--sap-title); }
+.alert { border-radius: 3px; }
+
+/* "Pronto" placeholders in the side menu */
+.nav-badge { background: rgba(255, 255, 255, .2); color: #eaf1fb; font-weight: 600; letter-spacing: .02em; }
+.nav-link.is-disabled { opacity: .7; }
+.nav-link.is-disabled:hover { background: transparent; }
+
+/* Search box (group box with title bar) */
+.search-box { margin-bottom: 1rem; }
+.search-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 1.25rem; }
+.search-field { display: flex; flex-direction: column; gap: .3rem; flex: 1 1 22rem; }
+.search-field-small { flex: 0 1 12rem; }
+.search-field label { font-size: 1rem; font-weight: 600; color: var(--sap-title); }
+.search-field .input-wrap, .search-field select { min-height: 2.75rem; font-size: 1.05rem; }
+.search-field input[type='search'] { font-size: 1.05rem; padding: .5rem .75rem; min-height: 2.75rem; }
+.search-field select { padding: .5rem .65rem; border: 1px solid var(--sap-field-border); }
+.search-actions { display: flex; gap: .5rem; }
+.search-actions .btn { min-height: 2.75rem; }
+.count-badge { display: inline-block; min-width: 1.6rem; margin-left: .4rem; padding: .05rem .5rem; border: 1px solid var(--sap-border); border-radius: 999px; background: var(--sap-panel); color: var(--sap-title); font-size: .8rem; text-align: center; }
+
+/* Row actions and disabled buttons */
+td.actions { align-items: center; flex-wrap: wrap; white-space: normal; }
+td.actions form { margin: 0; }
+.btn:disabled, .btn.is-disabled { opacity: .55; cursor: not-allowed; pointer-events: none; }
+span[title] > .btn:disabled { pointer-events: auto; }
+
+/* Pager */
+.pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1rem; padding-top: .85rem; border-top: 1px solid var(--sap-border); color: var(--text-muted); font-size: .9rem; }
+.pager-links { display: inline-flex; align-items: center; gap: .6rem; }
+.pager-page { color: var(--sap-title); font-weight: 600; }
+
+/* Tab panes in the loan detail */
+.tab-pane { border-radius: 0 3px 3px 3px; background: var(--sap-panel); box-shadow: 0 1px 3px rgba(20, 50, 100, .15); }
+.tab-pane[hidden] { display: none; }
+.pane-note { margin: 0 0 .75rem; color: var(--text-muted); font-size: .9rem; }
+[data-tabs] > .tab-bar { margin-bottom: -1px; position: relative; z-index: 1; }
+
+/* Confirmation dialog */
+.modal { width: min(30rem, calc(100vw - 2rem)); padding: 0; border: 1px solid var(--sap-border); border-radius: 3px; background: var(--sap-panel); color: var(--text); box-shadow: 0 20px 50px rgba(10, 30, 70, .45); }
+.modal::backdrop { background: rgba(15, 30, 60, .55); }
+.modal-title { display: flex; align-items: center; gap: .6rem; padding: .75rem 1.1rem; border-bottom: 1px solid var(--sap-border); background: var(--sap-panel-head); color: var(--sap-title); font-size: 1.1rem; font-weight: 700; }
+.modal-title .icon { width: 1.4rem; height: 1.4rem; color: #c77d00; }
+.modal-message { margin: 0; padding: 1.4rem 1.2rem; font-size: 1.05rem; line-height: 1.5; }
+.modal-actions { display: flex; justify-content: flex-end; gap: .6rem; padding: .85rem 1.1rem; border-top: 1px solid var(--sap-border); background: var(--sap-panel-head); }
+
+/* Date field: dd/mm/yyyy text box with a calendar button */
+.date-input { position: relative; display: flex; align-items: stretch; width: 100%; border: 1px solid var(--sap-field-border); border-radius: 2px; background: #fff; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
+[data-theme='dark'] .date-input { background: #0d1424; }
+.date-input:focus-within { border-color: var(--sap-title); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent); }
+.date-input > input[type='text'] { flex: 1; min-width: 0; margin: 0; padding: .5rem .75rem; border: 0; background: transparent; color: inherit; font: inherit; outline: none; box-shadow: none; }
+.date-input > input[type='text']:disabled { background: var(--surface-muted); color: var(--text-muted); }
+.date-input > input[type='text']:invalid:not(:placeholder-shown) { color: var(--danger); }
+.date-picker-button { display: grid; place-items: center; padding: 0 .8rem; border: 0; border-left: 1px solid var(--sap-field-border); background: var(--sap-panel-head); color: var(--sap-title); cursor: pointer; }
+.date-picker-button:hover { background: var(--sap-btn-hover); }
+.date-native { position: absolute; right: 0; bottom: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; pointer-events: none; }
+.form-section .form-field > .date-input { grid-column: 2; max-width: 34rem; }
+.form-section .date-input > input[type='text'] { min-height: 2.9rem; font-size: 1.05rem; }
