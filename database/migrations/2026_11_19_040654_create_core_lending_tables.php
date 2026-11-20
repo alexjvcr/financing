@@ -5,10 +5,10 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Describes the core lending tables that already exist in the production
- * database. Every table is guarded with hasTable() so running this migration
- * against that database changes nothing, while a fresh environment (or the
- * test suite) gets the complete schema.
+ * Describe las tablas centrales de préstamos que ya existen en la base de datos
+ * de producción. Cada tabla se protege con hasTable(), así que ejecutar esta
+ * migración contra esa base no cambia nada, mientras que un entorno nuevo (o la
+ * suite de pruebas) obtiene el esquema completo.
  */
 return new class extends Migration
 {
@@ -82,7 +82,7 @@ return new class extends Migration
     }
 
     /**
-     * These tables pre-date the migrations, so they are never dropped here.
+     * Estas tablas son anteriores a las migraciones, por lo que aquí nunca se eliminan.
      */
     public function down(): void
     {

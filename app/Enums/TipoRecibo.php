@@ -33,7 +33,7 @@ enum TipoRecibo: string
     }
 
     /**
-     * Receipts that settle a numbered installment of the schedule.
+     * Recibos que cancelan una cuota numerada del plan.
      */
     public function isInstallmentPayment(): bool
     {
@@ -41,7 +41,7 @@ enum TipoRecibo: string
     }
 
     /**
-     * Receipts that reduce the balance outside the regular installments.
+     * Recibos que reducen el saldo fuera de las cuotas regulares.
      */
     public function isPrincipalPrepayment(): bool
     {

@@ -224,7 +224,7 @@ class CatalogMaintenanceTest extends TestCase
 
     public function test_credit_line_rejects_unsupported_values(): void
     {
-        $this->post(route('lineas.store'), ['modalidad_pago' => 'DIARIA', 'modalidad_cuota' => 'CRECIENTE'])
+        $this->post(route('lineas.store'), ['modalidad_pago' => 'DIARIA', 'modalidad_cuota' => 'ESPIRAL'])
             ->assertSessionHasErrors(['modalidad_pago', 'modalidad_cuota', 'nombre', 'empresa_id']);
     }
 }

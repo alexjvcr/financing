@@ -83,7 +83,7 @@ class TipoTasaController extends CatalogController
     }
 
     /**
-     * The change history only describes this rate type, so it goes with it.
+     * El historial de cambios solo describe este tipo de tasa, por lo que se elimina junto con él.
      */
     protected function deleteRecord(Model $record): void
     {

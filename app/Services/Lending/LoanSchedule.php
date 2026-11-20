@@ -7,22 +7,23 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * A payment plan rebuilt from the loan terms, receipts and revisions.
+ * Un plan de pagos reconstruido a partir de los términos del préstamo, los recibos y las revisiones.
  */
 final class LoanSchedule
 {
     /**
-     * @param  Collection<int, ScheduleRow>  $rows  Chronological rows.
+     * @param  Collection<int, ScheduleRow>  $rows  Filas en orden cronológico.
      */
     public function __construct(
         public readonly Collection $rows,
         public readonly float $loanAmount,
         public readonly bool $hasPayoff,
         public readonly float $currentAnnualRate,
+        public readonly ?LoanConditions $conditions = null,
     ) {}
 
     /**
-     * Principal paid so far through installments, prepayments and payoff.
+     * Principal pagado hasta ahora mediante cuotas, abonos y cancelación.
      */
     public function paidPrincipal(): float
     {
@@ -41,7 +42,7 @@ final class LoanSchedule
     }
 
     /**
-     * Whether the loan was cancelled or everything owed has really been paid.
+     * Indica si el préstamo fue cancelado o si todo lo adeudado se pagó realmente.
      */
     public function isSettled(): bool
     {
@@ -49,7 +50,7 @@ final class LoanSchedule
     }
 
     /**
-     * Principal still owed today.
+     * Principal que aún se adeuda hoy.
      */
     public function outstandingPrincipal(): float
     {
@@ -61,7 +62,7 @@ final class LoanSchedule
     }
 
     /**
-     * Installments that are still to be paid, overdue ones first.
+     * Cuotas que aún están por pagar, las vencidas primero.
      *
      * @return Collection<int, ScheduleRow>
      */
@@ -79,7 +80,7 @@ final class LoanSchedule
     }
 
     /**
-     * The first installment that still has to be paid.
+     * La primera cuota que todavía debe pagarse.
      */
     public function nextOpenInstallment(): ?ScheduleRow
     {
@@ -87,7 +88,7 @@ final class LoanSchedule
     }
 
     /**
-     * The first installment that is not overdue yet.
+     * La primera cuota que aún no está vencida.
      */
     public function nextUpcomingInstallment(): ?ScheduleRow
     {
@@ -95,7 +96,7 @@ final class LoanSchedule
     }
 
     /**
-     * Date of the last installment, or of the payoff when the loan was cancelled.
+     * Fecha de la última cuota, o de la cancelación cuando el préstamo fue cancelado.
      */
     public function maturityDate(): ?Carbon
     {
@@ -105,7 +106,7 @@ final class LoanSchedule
     }
 
     /**
-     * Installment amount currently in force.
+     * Monto de la cuota vigente actualmente.
      */
     public function currentInstallmentAmount(): float
     {

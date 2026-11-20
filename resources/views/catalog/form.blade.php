@@ -139,6 +139,7 @@
                             <div><dt>Empresa</dt><dd data-info="company"></dd></div>
                             <div><dt>Moneda</dt><dd data-info="currency"></dd></div>
                             <div><dt>Pago</dt><dd data-info="payment"></dd></div>
+                            <div class="stacked"><dt>Cálculo de la línea</dt><dd data-info="conditions"></dd></div>
                             <div><dt>Monto máximo</dt><dd data-info="limit"></dd></div>
                             <div class="highlight"><dt>Disponible</dt><dd data-info="available"></dd></div>
                             <div><dt>Tasa de la línea</dt><dd data-info="rate"></dd></div>
@@ -214,7 +215,7 @@
                     }
 
                     const text = {
-                        bank: line.bank, company: line.company, currency: line.currency, payment: line.payment,
+                        bank: line.bank, company: line.company, currency: line.currency, payment: line.payment, conditions: line.conditions,
                         limit: money(line.limit, line.currency), available: money(line.available, line.currency),
                         rate: `${line.rate.toFixed(4)}% + ${line.spread.toFixed(4)}% spread`,
                     };

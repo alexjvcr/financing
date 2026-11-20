@@ -8,6 +8,7 @@ use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\LineaPrestamoController;
 use App\Http\Controllers\PrestamoController;
 use App\Http\Controllers\ReciboController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\TipoPagoController;
 use App\Http\Controllers\TipoTasaController;
@@ -32,6 +33,10 @@ Route::middleware('auth')->group(function () {
     Route::get('prestamos/{prestamo}/cotizacion', [PrestamoController::class, 'quote'])->name('prestamos.cotizacion');
     Route::post('prestamos/{prestamo}/recibos', [ReciboController::class, 'store'])->name('prestamos.recibos.store');
     Route::get('anulaciones', [AnulacionController::class, 'index'])->name('anulaciones.index');
+
+    Route::get('reportes', [ReportController::class, 'index'])->name('reportes.index');
+    Route::get('reportes/{slug}', [ReportController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('reportes.show');
+    Route::get('reportes/{slug}/excel', [ReportController::class, 'download'])->where('slug', '[a-z0-9-]+')->name('reportes.excel');
     Route::get('recibos', [ReciboController::class, 'index'])->name('recibos.index');
     Route::post('recibos/{recibo}/anular', [ReciboController::class, 'void'])->name('recibos.anular');
     Route::post('prestamos/{prestamo}/revisiones', [RevisionController::class, 'store'])->name('prestamos.revisiones.store');

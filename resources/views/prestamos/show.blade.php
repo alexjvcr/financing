@@ -94,6 +94,9 @@
 
         <section class="card tab-pane" data-panel="plan" role="tabpanel" @if ($activeTab !== 'plan') hidden @endif>
             <p class="pane-note">Plan reconstruido con los recibos, abonos y revisiones de tasa.</p>
+            @if ($schedule->conditions)
+                <p class="pane-note"><strong>Cálculo:</strong> {{ $schedule->conditions->describe() }}</p>
+            @endif
             <div class="table-wrapper table-scroll">
                 <table>
                     <thead>
@@ -340,7 +343,7 @@
             const interest = form.querySelector('#monto_interes');
             const installmentField = form.querySelector('#installment-field');
 
-            // The date field shows the configured format (DATE_FORMAT); the quote endpoint expects yyyy-mm-dd.
+            // El campo de fecha muestra el formato configurado (DATE_FORMAT); el endpoint de cotización espera yyyy-mm-dd.
             const isoDate = () => window.dateFormat.toIso(date.value);
 
             const apply = async () => {

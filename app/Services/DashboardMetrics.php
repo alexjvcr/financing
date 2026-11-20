@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Figures for the dashboard, derived from every active loan's rebuilt plan.
+ * Cifras del tablero, derivadas del plan reconstruido de cada préstamo activo.
  */
 class DashboardMetrics
 {
@@ -24,7 +24,7 @@ class DashboardMetrics
     public function __construct(protected LoanScheduleService $schedules) {}
 
     /**
-     * Headline figures for the dashboard cards.
+     * Cifras principales de las tarjetas del tablero.
      *
      * @return array{
      *     outstanding_balance: float,
@@ -52,12 +52,12 @@ class DashboardMetrics
     }
 
     /**
-     * Available credit per bank now and projected after each horizon.
+     * Crédito disponible por banco ahora y proyectado después de cada horizonte.
      *
-     * Available = line limits - loan balances. Each projection adds back the
-     * principal of every open installment due within the horizon.
+     * Disponible = límites de las líneas - saldos de los préstamos. Cada proyección suma de nuevo el
+     * principal de cada cuota abierta que vence dentro del horizonte.
      *
-     * @param  array<int, int>  $horizons  Months ahead to project.
+     * @param  array<int, int>  $horizons  Meses hacia adelante a proyectar.
      * @return array{
      *     horizons: array<int, int>,
      *     rows: Collection<int, object{name: string, currency: string, limit: float, balance: float, available: float, projected: array<int, float>}>,
@@ -127,7 +127,7 @@ class DashboardMetrics
     }
 
     /**
-     * Open installments of every active loan ordered by due date, overdue ones first.
+     * Cuotas abiertas de todos los préstamos activos ordenadas por fecha de vencimiento, las vencidas primero.
      *
      * @return Collection<int, object{loan_number: string, credit_line: string, installment_number: int, due_date: string, amount: float, is_overdue: bool}>
      */
@@ -137,7 +137,7 @@ class DashboardMetrics
     }
 
     /**
-     * The first installment that has not yet reached its due date.
+     * La primera cuota que aún no llega a su fecha de vencimiento.
      *
      * @return object{loan_number: string, credit_line: string, installment_number: int, due_date: string, amount: float, is_overdue: bool}|null
      */

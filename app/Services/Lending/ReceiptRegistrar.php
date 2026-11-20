@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Registers and voids receipts, enforcing the rules that keep the rebuilt
- * plan well defined.
+ * Registra y anula recibos, haciendo cumplir las reglas que mantienen bien
+ * definido el plan reconstruido.
  */
 class ReceiptRegistrar
 {
@@ -24,7 +24,7 @@ class ReceiptRegistrar
     ) {}
 
     /**
-     * Register a receipt, its payment detail and refresh the loan and its credit line.
+     * Registra un recibo y su detalle de pago, y actualiza el préstamo y su línea de crédito.
      *
      * @param  array{tipo: TipoRecibo|string, fecha_pago: Carbon|string, numero_cuota?: int|null, monto_principal?: float|int|string|null, monto_interes?: float|int|string|null, monto_otros?: float|int|string|null, tipo_pago_otros_id?: int|string|null, descripcion_otros?: string|null, observaciones?: string|null}  $data
      *
@@ -66,12 +66,12 @@ class ReceiptRegistrar
     }
 
     /**
-     * Void a receipt. Receipts are voided from the most recent to the oldest, so the
-     * payment sequence never has a gap: a payment cannot be undone while a later one stands.
+     * Anula un recibo. Los recibos se anulan del más reciente al más antiguo, de modo que la
+     * secuencia de pagos nunca tenga un hueco: un pago no se puede deshacer mientras exista uno posterior.
      *
-     * Voiding restores the loan balance, puts the installment back to pending in the plan
-     * (and in the legacy planpagos table), refreshes the available credit of the line and
-     * leaves the audit trail: who voided it, when and why.
+     * La anulación restaura el saldo del préstamo, devuelve la cuota a pendiente en el plan
+     * (y en la tabla heredada planpagos), actualiza el crédito disponible de la línea y
+     * deja la huella de auditoría: quién lo anuló, cuándo y por qué.
      *
      * @throws ValidationException
      */
@@ -105,7 +105,7 @@ class ReceiptRegistrar
     }
 
     /**
-     * The most recent active receipt of a loan: the only one that can be voided now.
+     * El recibo activo más reciente de un préstamo: el único que se puede anular ahora.
      */
     public function latestActive(Prestamo $loan): ?Recibo
     {
@@ -113,7 +113,7 @@ class ReceiptRegistrar
     }
 
     /**
-     * Payment type used for the "other items" amount: the chosen one or OT.
+     * Tipo de pago usado para el monto de "otros rubros": el elegido u OT.
      *
      * @throws ValidationException
      */
@@ -165,7 +165,7 @@ class ReceiptRegistrar
             TipoRecibo::CuotaCompleta => $this->validateInstallment($schedule, $number, $principal, $interest, requirePrincipal: true),
             TipoRecibo::ParcialInteres => $this->validateInstallment($schedule, $number, $principal, $interest, requirePrincipal: false),
             TipoRecibo::SoloPrincipal, TipoRecibo::AdelantoCuota => $this->validatePrepayment($outstanding, $principal, $interest),
-            TipoRecibo::CancelacionTotal => $this->validatePayoff($loan, $date, $principal),
+            TipoRecibo::CancelacionTotal => $this->validatePayoff($loan, $date, $principal, $schedule),
         };
 
         return $schedule;
@@ -186,7 +186,7 @@ class ReceiptRegistrar
             $this->fail('numero_cuota', "La siguiente cuota por pagar es la número {$next->number}.");
         }
 
-        if ($requirePrincipal && $principal <= 0) {
+        if ($requirePrincipal && $principal <= 0 && $next->scheduledPrincipal > 0) {
             $this->fail('monto_principal', 'Una cuota completa debe incluir pago a principal.');
         }
 
@@ -220,8 +220,14 @@ class ReceiptRegistrar
     /**
      * @throws ValidationException
      */
-    protected function validatePayoff(Prestamo $loan, Carbon $date, float $principal): void
+    protected function validatePayoff(Prestamo $loan, Carbon $date, float $principal, LoanSchedule $schedule): void
     {
+        $overdue = $schedule->openInstallments()->first(fn (ScheduleRow $row): bool => $row->date->lt($date));
+
+        if ($overdue !== null) {
+            $this->fail('fecha_pago', "Antes de cancelar debe pagar las cuotas con vencimiento anterior a esa fecha (la cuota {$overdue->number} del ".DateFormat::format($overdue->date).').');
+        }
+
         $quote = $this->schedules->payoffQuote($loan, $date);
 
         if (abs($principal - $quote['principal']) > 0.01) {

@@ -9,7 +9,7 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Registra los servicios de la aplicación.
      */
     public function register(): void
     {
@@ -17,11 +17,11 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Inicializa los servicios de la aplicación.
      */
     public function boot(): void
     {
-        // @fecha($date) prints a date in the format set by DATE_FORMAT; @fechahora($date) adds the time.
+        // @fecha($date) imprime una fecha en el formato definido por DATE_FORMAT; @fechahora($date) agrega la hora.
         Blade::directive('fecha', fn (string $expression): string => '<?php echo e('.DateFormat::class.'::format('.$expression.')); ?>');
         Blade::directive('fechahora', fn (string $expression): string => '<?php echo e('.DateFormat::class.'::formatDateTime('.$expression.')); ?>');
     }

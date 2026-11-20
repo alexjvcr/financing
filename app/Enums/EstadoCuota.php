@@ -24,7 +24,7 @@ enum EstadoCuota: string
     }
 
     /**
-     * CSS modifier used by the badge component.
+     * Modificador CSS que usa el componente de insignia.
      */
     public function badgeClass(): string
     {
@@ -37,7 +37,7 @@ enum EstadoCuota: string
     }
 
     /**
-     * Whether the installment still has to be paid.
+     * Indica si la cuota todavía debe pagarse.
      */
     public function isOpen(): bool
     {

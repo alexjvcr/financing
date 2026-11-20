@@ -1,11 +1,11 @@
 @props(['name', 'value' => null, 'id' => null, 'required' => false, 'readonly' => false])
 
 {{--
-    Date field that shows and accepts dates in the format set by DATE_FORMAT in .env.
-    Use it for every date in a form:
+    Campo de fecha que muestra y acepta fechas en el formato definido por DATE_FORMAT en .env.
+    Úsalo para toda fecha en un formulario:
     <x-date-input name="fecha" :value="old('fecha', $record?->fecha)" required />
-    The hidden "_dates[]" entry makes ConvertDisplayDates turn the value into yyyy-mm-dd
-    before validation, so the controller keeps using the plain "date" rule.
+    La entrada oculta "_dates[]" hace que ConvertDisplayDates convierta el valor a yyyy-mm-dd
+    antes de validar, así el controlador sigue usando la regla "date" normal.
 --}}
 @php
     $inputId = $id ?? $name;

@@ -34,14 +34,19 @@
                     </a>
 
                     <p class="nav-section">Reportes</p>
-                    @foreach ([
-                        ['trending-up', 'Reportes'],
-                        ['file-text', 'Estado de cuenta'],
-                        ['clock', 'Alertas de vencimiento'],
-                    ] as [$icon, $label])
-                        <span class="nav-link is-disabled" aria-disabled="true" title="Disponible próximamente">
-                            <x-icon :name="$icon" /> {{ $label }} <span class="nav-badge">Pronto</span>
-                        </span>
+                    <a href="{{ route('reportes.index') }}" class="nav-link {{ request()->routeIs('reportes.index') ? 'is-active' : '' }}">
+                        <x-icon name="trending-up" /> Reportes
+                    </a>
+                    @foreach (\App\Reports\ReportCatalog::menu() as $report)
+                        @if ($report['available'])
+                            <a href="{{ route('reportes.show', $report['slug']) }}" class="nav-link nav-sub {{ request()->route('slug') === $report['slug'] ? 'is-active' : '' }}">
+                                <x-icon :name="$report['icon']" /> {{ $report['title'] }}
+                            </a>
+                        @else
+                            <span class="nav-link nav-sub is-disabled" aria-disabled="true" title="Disponible próximamente">
+                                <x-icon :name="$report['icon']" /> {{ $report['title'] }} <span class="nav-badge">Pronto</span>
+                            </span>
+                        @endif
                     @endforeach
 
                     <p class="nav-section">Configuración</p>
@@ -190,7 +195,7 @@
                 }
             });
 
-            // Forms with data-confirm ask for confirmation in a dialog before they are submitted.
+            // Los formularios con data-confirm piden confirmación en un diálogo antes de enviarse.
             const confirmDialog = document.getElementById('confirm-dialog');
             document.addEventListener('submit', (event) => {
                 const form = event.target;
@@ -212,7 +217,7 @@
                 confirmDialog.showModal();
             });
 
-            // Tab bars: every [data-tabs] container switches its own [data-panel] sections.
+            // Barras de pestañas: cada contenedor [data-tabs] cambia sus propias secciones [data-panel].
             document.querySelectorAll('[data-tabs]').forEach((container) => {
                 const tabs = container.querySelectorAll('.tab-bar .tab');
                 const panels = container.querySelectorAll('[data-panel]');
@@ -227,7 +232,7 @@
 
                 tabs.forEach((tab) => tab.addEventListener('click', () => show(tab.dataset.tab)));
 
-                // A required field inside a hidden tab would block the submit silently: open its tab first.
+                // Un campo obligatorio en una pestaña oculta bloquearía el envío en silencio: se abre su pestaña primero.
                 container.closest('body').addEventListener('invalid', (event) => {
                     const panel = event.target.closest('[data-panel]');
                     if (panel && container.contains(panel) && panel.hidden) {
@@ -236,9 +241,9 @@
                 }, true);
             });
 
-            // Dates: the format comes from DATE_FORMAT (config/formats.php). Fields of the x-date-input
-            // component get a typing mask, validation and a calendar picker; forms submit the typed text
-            // and the server converts it to yyyy-mm-dd.
+            // Fechas: el formato viene de DATE_FORMAT (config/formats.php). Los campos del componente
+            // x-date-input reciben máscara de escritura, validación y selector de calendario; los formularios
+            // envían el texto escrito y el servidor lo convierte a yyyy-mm-dd.
             const dateFormat = (() => {
                 const settings = @json(\App\Support\DateFormat::forJavaScript());
                 const separator = settings.separator;
@@ -246,7 +251,7 @@
                 const matcher = new RegExp('^' + settings.order.map((part) => (part === 'Y' ? '(\\d{4})' : '(\\d{1,2})')).join(separatorPattern) + '$');
                 const pad = (number, size = 2) => String(number).padStart(size, '0');
 
-                // Parse typed text into { d, m, Y } numbers, or null when it is not a real date.
+                // Convierte el texto escrito en números { d, m, Y }, o null si no es una fecha real.
                 const parse = (text) => {
                     const match = matcher.exec(String(text).trim());
                     if (! match) {
@@ -263,20 +268,20 @@
                 return {
                     ...settings,
                     parse,
-                    // Typed text -> yyyy-mm-dd ('' when invalid).
+                    // Texto escrito -> yyyy-mm-dd ('' si no es válido).
                     toIso: (text) => {
                         const values = parse(text);
 
                         return values ? `${pad(values.Y, 4)}-${pad(values.m)}-${pad(values.d)}` : '';
                     },
-                    // yyyy-mm-dd -> text in the configured format.
+                    // yyyy-mm-dd -> texto en el formato configurado.
                     fromIso: (iso) => {
                         const [year, month, day] = String(iso).split('-');
                         const values = { d: day, m: month, Y: year };
 
                         return iso ? settings.order.map((part) => values[part]).join(separator) : '';
                     },
-                    // Add the separator by itself once a part is complete.
+                    // Agrega el separador automáticamente cuando una parte está completa.
                     mask: (raw, isDeleting) => {
                         let value = raw.replace(new RegExp('[^0-9' + separatorPattern + ']', 'g'), '').slice(0, 10);
                         const parts = value.split(separator);

@@ -13,7 +13,7 @@ return new class extends Migration
             $table->decimal('disponible', 15, 2)->nullable();
         });
 
-        // Starting point: credit limit minus the balance of the line's active loans.
+        // Punto de partida: límite de crédito menos el saldo de los préstamos activos de la línea.
         $used = DB::table('prestamos')
             ->where('estado', 'ACTIVO')
             ->groupBy('id_lineas_prestamos')

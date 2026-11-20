@@ -42,7 +42,7 @@ class TipoPago extends Model
     }
 
     /**
-     * Whether the registrar relies on this code to build a receipt's detail.
+     * Indica si el registrador depende de este código para armar el detalle de un recibo.
      */
     public function isSystem(): bool
     {

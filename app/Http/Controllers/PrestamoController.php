@@ -6,15 +6,17 @@ use App\Enums\TipoRecibo;
 use App\Models\LineaPrestamo;
 use App\Models\Prestamo;
 use App\Models\TipoPago;
+use App\Services\Lending\LegacyPlanSync;
+use App\Services\Lending\LoanConditions;
 use App\Services\Lending\LoanScheduleBuilder;
 use App\Services\Lending\LoanScheduleService;
+use App\Support\CalculationOptions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -24,6 +26,7 @@ class PrestamoController extends Controller
     public function __construct(
         protected LoanScheduleService $schedules,
         protected LoanScheduleBuilder $builder,
+        protected LegacyPlanSync $legacyPlan,
     ) {}
 
     public function index(Request $request): View
@@ -60,14 +63,17 @@ class PrestamoController extends Controller
             return back()->withErrors(['delete' => "No se puede eliminar el sub préstamo {$prestamo->numero_prestamo}: ".implode(' ', $blockers)]);
         }
 
-        $prestamo->delete();
+        DB::transaction(function () use ($prestamo): void {
+            $this->legacyPlan->purge($prestamo);
+            $prestamo->delete();
+        });
         $prestamo->linea->refreshAvailable();
 
         return redirect()->route('prestamos.index')->with('status', "Sub Préstamo {$prestamo->numero_prestamo} eliminado correctamente.");
     }
 
     /**
-     * Reasons why a loan cannot be deleted because other rows reference it.
+     * Motivos por los que un préstamo no se puede eliminar porque otros registros lo referencian.
      *
      * @return array<int, string>
      */
@@ -85,11 +91,9 @@ class PrestamoController extends Controller
             $blockers[] = "tiene {$revisions} revisión(es) de tasa o plazo.";
         }
 
-        if (Schema::hasTable('planpagos')) {
-            $legacy = DB::table('planpagos')->where('prestamo_id', $loan->id)->count();
-            if ($legacy > 0) {
-                $blockers[] = "tiene {$legacy} cuota(s) en la tabla histórica planpagos.";
-            }
+        $paid = $this->legacyPlan->paidInstallments($loan);
+        if ($paid > 0) {
+            $blockers[] = "tiene {$paid} cuota(s) pagada(s) en la tabla histórica planpagos.";
         }
 
         return $blockers;
@@ -110,7 +114,7 @@ class PrestamoController extends Controller
         $loan = new Prestamo($data + ['estado' => Prestamo::STATUS_ACTIVE]);
         $this->applyDerivedFigures($loan, $line);
         $loan->save();
-        $line->refreshAvailable();
+        $this->schedules->refreshSnapshot($loan);
 
         return redirect()->route('prestamos.show', $loan)->with('status', 'Sub Préstamo creado. Ya puede registrar recibos y revisiones.');
     }
@@ -153,7 +157,7 @@ class PrestamoController extends Controller
             $previousLineId = $prestamo->getOriginal('id_lineas_prestamos');
             $prestamo->save();
 
-            $line->refreshAvailable();
+            $this->schedules->refreshSnapshot($prestamo);
             if ($previousLineId !== null && (int) $previousLineId !== $line->id) {
                 LineaPrestamo::find($previousLineId)?->refreshAvailable();
             }
@@ -163,7 +167,7 @@ class PrestamoController extends Controller
     }
 
     /**
-     * Cost of paying the loan off on a date, as JSON for the receipt form.
+     * Costo de cancelar el préstamo en una fecha, como JSON para el formulario de recibo.
      */
     public function quote(Request $request, Prestamo $prestamo): JsonResponse
     {
@@ -173,7 +177,7 @@ class PrestamoController extends Controller
     }
 
     /**
-     * Terms can only change while no receipt or revision depends on them.
+     * Las condiciones solo pueden cambiar mientras ningún recibo ni revisión dependa de ellas.
      */
     protected function isLocked(Prestamo $loan): bool
     {
@@ -199,9 +203,12 @@ class PrestamoController extends Controller
             'limit' => (float) $line->monto_maximo,
             'available' => (float) $line->monto_maximo - (float) ($used[$line->id] ?? 0),
             'payment' => $line->modalidad_pago.' · cuota '.strtolower($line->modalidad_cuota),
+            'conditions' => LoanConditions::resolve(new Prestamo, $line)->describe(),
             'rate' => (float) $line->tasa_interes,
             'spread' => (float) $line->tasa_spread,
         ]])->all();
+
+        $inherit = fn (array $field): array => $termField($field + ['required' => false, 'blank' => 'Heredar de la línea']);
 
         return view('catalog.form', [
             'title' => 'Sub Préstamos',
@@ -219,6 +226,7 @@ class PrestamoController extends Controller
                 'Identificación' => ['icon' => 'file-text', 'tone' => 'blue', 'description' => 'Número del sub préstamo y línea de crédito de la que se desembolsa.'],
                 'Condiciones financieras' => ['icon' => 'banknote', 'tone' => 'green', 'description' => 'Monto, fecha de formalización y plazo.'],
                 'Tasa y cuota' => ['icon' => 'percent', 'tone' => 'violet', 'description' => 'Parten de la línea y se pueden ajustar para este sub préstamo.'],
+                'Condiciones de cálculo' => ['icon' => 'calendar', 'tone' => 'green', 'description' => 'Cómo se calculan cuota e interés. Lo que se deja en blanco se hereda de la línea de crédito.'],
                 'Notas' => ['icon' => 'info', 'tone' => 'amber', 'description' => 'Información adicional opcional.'],
             ],
             'fields' => [
@@ -230,6 +238,14 @@ class PrestamoController extends Controller
                 'tasa_interes' => $termField(['group' => 'Tasa y cuota', 'label' => 'Tasa de interés', 'type' => 'number', 'step' => '0.0001', 'suffix' => '%']),
                 'tasa_spread' => $termField(['group' => 'Tasa y cuota', 'label' => 'Spread', 'type' => 'number', 'step' => '0.0001', 'suffix' => '%']),
                 'cuota_calculada' => $termField(['group' => 'Tasa y cuota', 'label' => 'Cuota pactada', 'type' => 'number', 'step' => '0.01', 'prefix' => '$', 'required' => false, 'hint' => 'Opcional. Si la deja vacía se calcula con el plazo y la tasa; úsela cuando el banco defina la cuota.']),
+                'modalidad_cuota' => $inherit(['group' => 'Condiciones de cálculo', 'icon' => 'activity', 'label' => 'Tipo de cálculo de cuota', 'type' => 'select', 'options' => CalculationOptions::modalities()]),
+                'calendario' => $inherit(['group' => 'Condiciones de cálculo', 'icon' => 'calendar', 'label' => 'Base de días (calendario)', 'type' => 'select', 'options' => CalculationOptions::calendars()]),
+                'tipo_cuota' => $inherit(['group' => 'Condiciones de cálculo', 'icon' => 'tag', 'label' => 'Tipo de cálculo de interés', 'type' => 'select', 'options' => CalculationOptions::rateConventions()]),
+                'modalidad_pago' => $inherit(['group' => 'Condiciones de cálculo', 'icon' => 'calendar', 'label' => 'Periodicidad de pago', 'type' => 'select', 'options' => CalculationOptions::paymentModes()]),
+                'forma_pago' => $inherit(['group' => 'Condiciones de cálculo', 'icon' => 'clock', 'label' => 'Forma de pago del interés', 'type' => 'select', 'options' => CalculationOptions::paymentForms()]),
+                'meses_gracia' => $inherit(['group' => 'Condiciones de cálculo', 'icon' => 'clock', 'label' => 'Período de gracia', 'type' => 'number', 'step' => '1', 'suffix' => 'meses', 'hint' => 'Meses iniciales en que solo se paga interés.']),
+                'porcentaje_global' => $inherit(['group' => 'Condiciones de cálculo', 'icon' => 'percent', 'label' => 'Cuota global (balloon)', 'type' => 'number', 'step' => '0.0001', 'suffix' => '% del monto', 'hint' => 'Se paga junto con la última cuota.']),
+                'variacion_porcentual' => $inherit(['group' => 'Condiciones de cálculo', 'icon' => 'trending-up', 'label' => 'Crecimiento de la cuota', 'type' => 'number', 'step' => '0.0001', 'suffix' => '% por período', 'hint' => 'Solo para cuota creciente.']),
                 'observacion' => ['group' => 'Notas', 'span' => 2, 'label' => 'Observación', 'type' => 'text', 'required' => false],
             ],
         ]);
@@ -249,12 +265,20 @@ class PrestamoController extends Controller
             'tasa_interes' => ['required', 'numeric', 'min:0', 'max:999'],
             'tasa_spread' => ['required', 'numeric', 'min:0', 'max:999'],
             'cuota_calculada' => ['nullable', 'numeric', 'min:0'],
+            'modalidad_cuota' => ['nullable', Rule::in(array_keys(CalculationOptions::modalities()))],
+            'calendario' => ['nullable', Rule::in(array_keys(CalculationOptions::calendars()))],
+            'tipo_cuota' => ['nullable', Rule::in(array_keys(CalculationOptions::rateConventions()))],
+            'modalidad_pago' => ['nullable', Rule::in(CalculationOptions::paymentModeCodes())],
+            'forma_pago' => ['nullable', Rule::in(array_keys(CalculationOptions::paymentForms()))],
+            'meses_gracia' => ['nullable', 'integer', 'min:0', 'max:600'],
+            'porcentaje_global' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'variacion_porcentual' => ['nullable', 'numeric', 'min:0', 'max:999'],
             'observacion' => ['nullable', 'string', 'max:255'],
         ];
     }
 
     /**
-     * The new loan may not exceed what is still available in its credit line.
+     * El nuevo préstamo no puede superar lo que aún está disponible en su línea de crédito.
      */
     protected function ensureCreditAvailable(LineaPrestamo $line, float $amount, ?Prestamo $current): void
     {
@@ -272,7 +296,7 @@ class PrestamoController extends Controller
     }
 
     /**
-     * Fill the contractual installment, balance and dates from the plan.
+     * Completa la cuota contractual, el saldo y las fechas a partir del plan.
      */
     protected function applyDerivedFigures(Prestamo $loan, LineaPrestamo $line): void
     {

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Enterprise (SAP Blue Crystal inspired) theme. Loaded after dashboard.css.
+   Tema empresarial (inspirado en SAP Blue Crystal). Se carga después de dashboard.css.
    ========================================================================== */
 :root {
     --sap-bg: #e3eaf4;
@@ -51,7 +51,7 @@
 
 body { background: var(--sap-bg); }
 
-/* Navigation */
+/* Navegación */
 .sidebar { background: var(--sap-nav); box-shadow: inset -1px 0 0 rgba(255, 255, 255, .08); }
 .sidebar-brand { border-bottom: 1px solid rgba(255, 255, 255, .12); }
 .brand-mark, [data-theme='dark'] .brand-mark { border-radius: 4px; background: var(--sap-gold); color: var(--sap-gold-text); border: 1px solid var(--sap-gold-border); }
@@ -62,27 +62,27 @@ a.nav-link:hover, .logout-link:hover { background: var(--sap-nav-hover); color: 
 .sidebar-footer { border-top: 1px solid rgba(255, 255, 255, .12); }
 .avatar { background: var(--sap-gold); color: var(--sap-gold-text); border: 1px solid var(--sap-gold-border); }
 
-/* Top bar and footer */
+/* Barra superior y pie de página */
 .topbar { background: var(--sap-topbar); border-bottom: 1px solid var(--sap-border); }
 .topbar-title { color: var(--sap-title); font-style: italic; font-weight: 700; }
 .icon-button, .user-button { border-color: var(--sap-btn-border); background: var(--sap-btn); color: var(--sap-btn-text); border-radius: 3px; }
 .icon-button:hover, .user-button:hover { background: var(--sap-btn-hover); }
 .page-footer { background: var(--sap-panel-head); border-top: 1px solid var(--sap-border); }
 
-/* Panels as group boxes */
+/* Paneles como cuadros de grupo */
 .card { border: 1px solid var(--sap-border); border-radius: 3px; background: var(--sap-panel); box-shadow: 0 1px 2px rgba(20, 50, 100, .12); }
 .card-title { margin: -1.25rem -1.25rem 1rem; padding: .55rem 1rem; border-bottom: 1px solid var(--sap-border); background: var(--sap-panel-head); color: var(--sap-title); font-size: .95rem; }
 .card-header { margin: -1.25rem -1.25rem 1rem; padding: .45rem 1rem; border-bottom: 1px solid var(--sap-border); background: var(--sap-panel-head); }
 .card-header .card-title { margin: 0; padding: 0; border: 0; background: none; }
 .stat-icon { border-radius: 3px; background: var(--sap-panel-head); color: var(--sap-title); border: 1px solid var(--sap-border); }
 
-/* Tables with light-blue headers and grid lines */
+/* Tablas con encabezados azul claro y líneas de cuadrícula */
 th { background: var(--sap-th); color: var(--sap-title); border: 1px solid var(--sap-border); text-transform: none; letter-spacing: 0; font-size: .85rem; }
 td { border: 1px solid color-mix(in srgb, var(--sap-border) 55%, transparent); background: var(--surface); }
 tbody tr:hover td { background: color-mix(in srgb, var(--primary) 10%, var(--surface)); }
 .table-scroll thead th { background: var(--sap-th); }
 
-/* Buttons: grey-blue by default, gold for the main action */
+/* Botones: gris azulado por defecto, dorado para la acción principal */
 .btn, .btn-soft-primary, .btn-soft-danger, [data-theme='dark'] .btn-soft-primary, [data-theme='dark'] .btn-soft-danger {
     border: 1px solid var(--sap-btn-border);
     border-radius: 3px;
@@ -102,7 +102,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--primary) 10%, var(--sur
 .btn-lg { border-radius: 3px; }
 .form-actions-card { border-top: 1px solid var(--sap-border); }
 
-/* Flat fields with a thin border */
+/* Campos planos con borde delgado */
 .input-wrap, .form-field select, .card select { border-color: var(--sap-field-border); border-radius: 2px; background: #fff; color: #1b2433; }
 [data-theme='dark'] .input-wrap, [data-theme='dark'] .form-field select, [data-theme='dark'] .card select { background: #0d1424; color: var(--text); }
 .input-wrap input { background: transparent; border: 0; }
@@ -114,7 +114,7 @@ tbody tr:hover td { background: color-mix(in srgb, var(--primary) 10%, var(--sur
 .affix, .form-section .affix { background: var(--sap-panel-head); color: var(--sap-title); border-color: var(--sap-field-border); }
 .form-field input:disabled, .form-field select:disabled { background: var(--surface-muted); }
 
-/* Form: title bar, tabs and group-box panels */
+/* Formulario: barra de título, pestañas y paneles de cuadro de grupo */
 .form-layout .form-section, .form-layout .line-info { --tone: var(--sap-title); }
 .form-hero { margin-bottom: 1rem; padding: .7rem 1.1rem; border: 1px solid var(--sap-border); border-radius: 3px; background: var(--sap-panel-head); }
 .hero-icon, [data-theme='dark'] .hero-icon { width: 2.4rem; height: 2.4rem; border-radius: 3px; background: var(--sap-gold); color: var(--sap-gold-text); border: 1px solid var(--sap-gold-border); box-shadow: none; }
@@ -167,14 +167,31 @@ tbody tr:hover td { background: color-mix(in srgb, var(--primary) 10%, var(--sur
 .line-info .aside-title { margin: -1.25rem -1.25rem .85rem; padding: .55rem 1rem; border-bottom: 1px solid var(--sap-border); background: var(--sap-panel-head); color: var(--sap-title); }
 .line-info .highlight { background: var(--sap-panel-head); color: var(--sap-title); border: 1px solid var(--sap-border); border-radius: 3px; }
 .usage span { background: var(--sap-title); }
+.line-info dl > div.stacked { flex-direction: column; gap: .2rem; }
+.line-info dl > div.stacked dd { text-align: left; font-weight: 500; font-size: .85rem; }
+
+/* Reportes */
+.nav-link.nav-sub { margin-left: 1rem; width: calc(100% - 1rem); padding-left: .6rem; font-size: .88rem; }
+.nav-link.nav-sub .nav-badge { font-size: .65rem; }
+.report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr)); gap: 1rem; }
+.report-card { display: flex; flex-direction: column; gap: .75rem; }
+.report-card .card-title { display: flex; align-items: center; gap: .5rem; }
+.report-card.is-planned { opacity: .7; }
+.report-description { margin: 0; flex: 1; color: var(--text-muted); font-size: .95rem; line-height: 1.5; }
+.report-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.report-subtitle { margin: 1.25rem 0 .6rem; color: var(--sap-title); font-size: 1.05rem; font-style: italic; }
+.report-date { margin: 0; padding: .55rem 0; font-size: 1.05rem; font-weight: 600; }
+.guidance-item { margin: 0 0 .75rem; padding: .6rem .8rem; border: 1px solid var(--sap-border); border-radius: 3px; background: var(--surface); line-height: 1.5; }
+.guidance-item .badge { margin-right: .4rem; }
+.guidance-item small { color: var(--text-muted); font-size: .88rem; }
 .alert { border-radius: 3px; }
 
-/* "Pronto" placeholders in the side menu */
+/* Marcadores "Pronto" en el menú lateral */
 .nav-badge { background: rgba(255, 255, 255, .2); color: #eaf1fb; font-weight: 600; letter-spacing: .02em; }
 .nav-link.is-disabled { opacity: .7; }
 .nav-link.is-disabled:hover { background: transparent; }
 
-/* Search box (group box with title bar) */
+/* Caja de búsqueda (cuadro de grupo con barra de título) */
 .search-box { margin-bottom: 1rem; }
 .search-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 1.25rem; }
 .search-field { display: flex; flex-direction: column; gap: .3rem; flex: 1 1 22rem; }
@@ -187,24 +204,24 @@ tbody tr:hover td { background: color-mix(in srgb, var(--primary) 10%, var(--sur
 .search-actions .btn { min-height: 2.75rem; }
 .count-badge { display: inline-block; min-width: 1.6rem; margin-left: .4rem; padding: .05rem .5rem; border: 1px solid var(--sap-border); border-radius: 999px; background: var(--sap-panel); color: var(--sap-title); font-size: .8rem; text-align: center; }
 
-/* Row actions and disabled buttons */
+/* Acciones de fila y botones deshabilitados */
 td.actions { align-items: center; flex-wrap: wrap; white-space: normal; }
 td.actions form { margin: 0; }
 .btn:disabled, .btn.is-disabled { opacity: .55; cursor: not-allowed; pointer-events: none; }
 span[title] > .btn:disabled { pointer-events: auto; }
 
-/* Pager */
+/* Paginador */
 .pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1rem; padding-top: .85rem; border-top: 1px solid var(--sap-border); color: var(--text-muted); font-size: .9rem; }
 .pager-links { display: inline-flex; align-items: center; gap: .6rem; }
 .pager-page { color: var(--sap-title); font-weight: 600; }
 
-/* Tab panes in the loan detail */
+/* Paneles de pestañas en el detalle del préstamo */
 .tab-pane { border-radius: 0 3px 3px 3px; background: var(--sap-panel); box-shadow: 0 1px 3px rgba(20, 50, 100, .15); }
 .tab-pane[hidden] { display: none; }
 .pane-note { margin: 0 0 .75rem; color: var(--text-muted); font-size: .9rem; }
 [data-tabs] > .tab-bar { margin-bottom: -1px; position: relative; z-index: 1; }
 
-/* Confirmation dialog */
+/* Diálogo de confirmación */
 .modal { width: min(30rem, calc(100vw - 2rem)); padding: 0; border: 1px solid var(--sap-border); border-radius: 3px; background: var(--sap-panel); color: var(--text); box-shadow: 0 20px 50px rgba(10, 30, 70, .45); }
 .modal::backdrop { background: rgba(15, 30, 60, .55); }
 .modal-title { display: flex; align-items: center; gap: .6rem; padding: .75rem 1.1rem; border-bottom: 1px solid var(--sap-border); background: var(--sap-panel-head); color: var(--sap-title); font-size: 1.1rem; font-weight: 700; }
@@ -212,7 +229,7 @@ span[title] > .btn:disabled { pointer-events: auto; }
 .modal-message { margin: 0; padding: 1.4rem 1.2rem; font-size: 1.05rem; line-height: 1.5; }
 .modal-actions { display: flex; justify-content: flex-end; gap: .6rem; padding: .85rem 1.1rem; border-top: 1px solid var(--sap-border); background: var(--sap-panel-head); }
 
-/* Date field: dd/mm/yyyy text box with a calendar button */
+/* Campo de fecha: cuadro de texto dd/mm/yyyy con botón de calendario */
 .date-input { position: relative; display: flex; align-items: stretch; width: 100%; border: 1px solid var(--sap-field-border); border-radius: 2px; background: #fff; overflow: hidden; transition: border-color .15s, box-shadow .15s; }
 [data-theme='dark'] .date-input { background: #0d1424; }
 .date-input:focus-within { border-color: var(--sap-title); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent); }

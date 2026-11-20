@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'empresa_id', 'banco_id', 'nombre', 'tipo_linea', 'monto_maximo', 'plazo_maximo_meses', 'modalidad_pago',
     'estado', 'fecha_vencmiento', 'capital_trabajo', 'moneda', 'forma_pago', 'calendario', 'tipo_cuota',
     'periodicidad_pago', 'tipo_interes', 'modalidad_cuota', 'variacion_porcentual', 'tipotasa_id',
-    'tasa_interes', 'tasa_spread', 'disponible',
+    'tasa_interes', 'tasa_spread', 'disponible', 'meses_gracia', 'porcentaje_global',
 ])]
 #[UseFactory(LineaPrestamoFactory::class)]
 class LineaPrestamo extends Model
@@ -30,7 +30,7 @@ class LineaPrestamo extends Model
     public const STATUS_INACTIVE = 'INACTIVO';
 
     /**
-     * Payment periodicity in installments per year for each payment mode.
+     * Periodicidad de pago en cuotas por año para cada modalidad de pago.
      *
      * @var array<string, int>
      */
@@ -50,6 +50,8 @@ class LineaPrestamo extends Model
         return [
             'monto_maximo' => 'float',
             'disponible' => 'float',
+            'meses_gracia' => 'integer',
+            'porcentaje_global' => 'float',
             'capital_trabajo' => 'float',
             'variacion_porcentual' => 'float',
             'tasa_interes' => 'float',
@@ -67,7 +69,7 @@ class LineaPrestamo extends Model
     }
 
     /**
-     * Store the credit still available: the limit minus the balance of the line's active loans.
+     * Guarda el crédito aún disponible: el límite menos el saldo de los préstamos activos de la línea.
      */
     public function refreshAvailable(): float
     {
@@ -81,7 +83,7 @@ class LineaPrestamo extends Model
     }
 
     /**
-     * Months between two installments of the loans in this line.
+     * Meses entre dos cuotas de los préstamos de esta línea.
      */
     public function monthsPerPeriod(): int
     {

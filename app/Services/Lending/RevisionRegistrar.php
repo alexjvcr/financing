@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Registers and voids rate and term revisions.
+ * Registra y anula revisiones de tasa y plazo.
  */
 class RevisionRegistrar
 {
@@ -47,8 +47,8 @@ class RevisionRegistrar
     }
 
     /**
-     * Void a revision. Revisions are voided from the most recent to the oldest;
-     * the audit trail keeps who voided it and when.
+     * Anula una revisión. Las revisiones se anulan de la más reciente a la más antigua;
+     * la huella de auditoría conserva quién la anuló y cuándo.
      *
      * @throws ValidationException
      */
@@ -75,7 +75,7 @@ class RevisionRegistrar
     }
 
     /**
-     * The most recent active revision of a loan: the only one that can be voided now.
+     * La revisión activa más reciente de un préstamo: la única que se puede anular ahora.
      */
     public function latestActive(Prestamo $loan): ?RevisionPrestamo
     {

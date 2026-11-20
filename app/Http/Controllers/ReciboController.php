@@ -17,7 +17,7 @@ class ReciboController extends Controller
     public function __construct(protected ReceiptRegistrar $registrar) {}
 
     /**
-     * Every receipt of every sub préstamo, with search and filters.
+     * Todos los recibos de cada sub préstamo, con búsqueda y filtros.
      */
     public function index(Request $request): View
     {
@@ -88,7 +88,7 @@ class ReciboController extends Controller
     }
 
     /**
-     * Back to the voiding screen when the request came from it, otherwise to the loan.
+     * Regresa a la pantalla de anulaciones si la solicitud vino de ella; de lo contrario, al préstamo.
      */
     protected function backTo(Request $request, int $loanId): RedirectResponse
     {
@@ -98,7 +98,7 @@ class ReciboController extends Controller
     }
 
     /**
-     * A yyyy-mm-dd date from the query string, or null when it is empty or not a real date.
+     * Una fecha yyyy-mm-dd de la cadena de consulta, o null cuando está vacía o no es una fecha real.
      */
     protected function isoDate(mixed $value): ?string
     {

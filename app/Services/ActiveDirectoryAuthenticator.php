@@ -9,17 +9,17 @@ use RuntimeException;
 class ActiveDirectoryAuthenticator
 {
     /**
-     * Verify the credentials against Active Directory.
+     * Verifica las credenciales contra Active Directory.
      *
      * @return array{username: string, name: string, email: string}|null
      *
-     * @throws RuntimeException When the domain controller cannot be reached.
+     * @throws RuntimeException Cuando no se puede alcanzar el controlador de dominio.
      */
     public function authenticate(string $username, string $password): ?array
     {
         $accountName = $this->normalizeUsername($username);
 
-        // An LDAP bind with an empty password succeeds as an anonymous bind.
+        // Un bind LDAP con contraseña vacía tiene éxito como bind anónimo.
         if ($accountName === '' || $password === '') {
             return null;
         }
@@ -41,7 +41,7 @@ class ActiveDirectoryAuthenticator
     }
 
     /**
-     * Get the domain account name of the Windows user signed in to IIS.
+     * Obtiene el nombre de cuenta de dominio del usuario de Windows con sesión iniciada en IIS.
      */
     public function windowsAccountName(Request $request): ?string
     {
@@ -65,7 +65,7 @@ class ActiveDirectoryAuthenticator
     }
 
     /**
-     * Build the unique e-mail used to store a directory account locally.
+     * Construye el correo único que se usa para guardar localmente una cuenta del directorio.
      */
     public function emailFor(string $accountName): string
     {
@@ -73,7 +73,7 @@ class ActiveDirectoryAuthenticator
     }
 
     /**
-     * Strip the CORP\ prefix or @domain suffix from a typed username.
+     * Quita el prefijo CORP\ o el sufijo @dominio de un nombre de usuario digitado.
      */
     public function normalizeUsername(string $username): string
     {

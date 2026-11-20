@@ -4,11 +4,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Active Directory Connection
+    | Conexión a Active Directory
     |--------------------------------------------------------------------------
     |
-    | Credentials are verified by binding to the domain controller as the
-    | user (user@domain), so no service account is required.
+    | Las credenciales se verifican enlazándose al controlador de dominio como
+    | el propio usuario (usuario@dominio), por lo que no se requiere una cuenta
+    | de servicio.
     |
     */
 
@@ -24,7 +25,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Directory Layout
+    | Estructura del directorio
     |--------------------------------------------------------------------------
     */
 
@@ -36,11 +37,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Windows Single Sign-On
+    | Inicio de sesión único de Windows
     |--------------------------------------------------------------------------
     |
-    | When IIS Windows Authentication is enabled, the signed-in Windows user
-    | is read from REMOTE_USER and logged in without asking for a password.
+    | Cuando la autenticación de Windows de IIS está habilitada, el usuario de
+    | Windows con sesión iniciada se lee de REMOTE_USER y se autentica sin
+    | pedir contraseña.
     |
     */
 

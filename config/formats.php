@@ -4,12 +4,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Date Format
+    | Formato de fecha
     |--------------------------------------------------------------------------
     |
-    | Format used to show and type dates in every screen and form. Set it with
-    | DATE_FORMAT in .env. Supported values: d/m/Y, m/d/Y, Y/m/d, d-m-Y,
-    | m-d-Y and Y-m-d (d = day, m = month, Y = four-digit year).
+    | Formato usado para mostrar y escribir fechas en todas las pantallas y
+    | formularios. Se define con DATE_FORMAT en .env. Valores admitidos: d/m/Y,
+    | m/d/Y, Y/m/d, d-m-Y, m-d-Y y Y-m-d (d = día, m = mes, Y = año de cuatro
+    | dígitos).
     |
     */
 

@@ -7,11 +7,14 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Loads a loan's receipts and revisions and rebuilds its payment plan.
+ * Carga los recibos y revisiones de un préstamo y reconstruye su plan de pagos.
  */
 class LoanScheduleService
 {
-    public function __construct(protected LoanScheduleBuilder $builder) {}
+    public function __construct(
+        protected LoanScheduleBuilder $builder,
+        protected LegacyPlanSync $legacyPlan,
+    ) {}
 
     public function scheduleFor(Prestamo $loan, ?Carbon $today = null): LoanSchedule
     {
@@ -27,7 +30,7 @@ class LoanScheduleService
     }
 
     /**
-     * Rebuilt plans of every active loan.
+     * Planes reconstruidos de todos los préstamos activos.
      *
      * @return Collection<int, array{loan: Prestamo, schedule: LoanSchedule}>
      */
@@ -49,7 +52,7 @@ class LoanScheduleService
     }
 
     /**
-     * Quote what it takes to pay the loan off on a given date.
+     * Cotiza lo necesario para cancelar el préstamo en una fecha dada.
      *
      * @return array{principal: float, interest: float}
      */
@@ -67,18 +70,18 @@ class LoanScheduleService
     }
 
     /**
-     * Store the figures derived from the rebuilt plan on the loan row and refresh
-     * the available credit of its line.
+     * Guarda en la fila del préstamo las cifras derivadas del plan reconstruido, actualiza
+     * el crédito disponible de su línea y refleja las cuotas en planpagos.
      *
-     * The contractual installment (cuota_calculada) is deliberately left
-     * alone because the plan uses it as its starting installment.
+     * La cuota contractual (cuota_calculada) se deja intacta a propósito
+     * porque el plan la usa como su cuota inicial.
      */
     public function refreshSnapshot(Prestamo $loan): LoanSchedule
     {
         $schedule = $this->scheduleFor($loan);
 
-        // Written through the query builder so the row is updated even when this
-        // in-memory model already holds the same values as a stale copy of the row.
+        // Se escribe mediante el query builder para que la fila se actualice incluso cuando este
+        // modelo en memoria ya tiene los mismos valores que una copia desactualizada de la fila.
         $loan->newQuery()->whereKey($loan->getKey())->update([
             'saldo_prestamo' => $schedule->outstandingPrincipal(),
             'estado' => $schedule->isSettled() ? Prestamo::STATUS_SETTLED : Prestamo::STATUS_ACTIVE,
@@ -89,6 +92,7 @@ class LoanScheduleService
         $loan->refresh();
 
         $loan->linea->refreshAvailable();
+        $this->legacyPlan->reflect($loan, $schedule);
 
         return $schedule;
     }

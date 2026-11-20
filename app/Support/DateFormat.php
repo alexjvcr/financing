@@ -5,30 +5,30 @@ namespace App\Support;
 use DateTimeInterface;
 
 /**
- * Single source of truth for how dates are shown and typed (DATE_FORMAT in .env).
+ * Única fuente de verdad de cómo se muestran y se digitan las fechas (DATE_FORMAT en .env).
  *
- * Dates are always stored and validated as yyyy-mm-dd. This class only converts
- * between that ISO form and the configured display format.
+ * Las fechas siempre se guardan y validan como yyyy-mm-dd. Esta clase solo convierte
+ * entre esa forma ISO y el formato de visualización configurado.
  */
 final class DateFormat
 {
     /**
-     * Formats a user can choose with DATE_FORMAT.
+     * Formatos que se pueden elegir con DATE_FORMAT.
      *
      * @var array<int, string>
      */
     public const SUPPORTED = ['d/m/Y', 'm/d/Y', 'Y/m/d', 'd-m-Y', 'm-d-Y', 'Y-m-d'];
 
     /**
-     * Value that no date rule accepts, used for malformed input so it is
-     * rejected instead of being read in another order.
+     * Valor que ninguna regla de fecha acepta; se usa con entradas mal formadas
+     * para que se rechacen en lugar de leerse en otro orden.
      */
     public const INVALID = 'invalid-date';
 
     private const DEFAULT = 'd/m/Y';
 
     /**
-     * The configured PHP date format, for example d/m/Y.
+     * El formato de fecha de PHP configurado, por ejemplo d/m/Y.
      */
     public static function pattern(): string
     {
@@ -43,7 +43,7 @@ final class DateFormat
     }
 
     /**
-     * Order of the parts, for example ['d', 'm', 'Y'].
+     * Orden de las partes, por ejemplo ['d', 'm', 'Y'].
      *
      * @return array<int, string>
      */
@@ -53,7 +53,7 @@ final class DateFormat
     }
 
     /**
-     * Hint shown inside date fields, for example dd/mm/aaaa.
+     * Pista mostrada dentro de los campos de fecha, por ejemplo dd/mm/aaaa.
      */
     public static function placeholder(): string
     {
@@ -63,7 +63,7 @@ final class DateFormat
     }
 
     /**
-     * Regular expression body (no delimiters) that matches the display format.
+     * Cuerpo de la expresión regular (sin delimitadores) que coincide con el formato de visualización.
      */
     public static function regex(): string
     {
@@ -78,7 +78,7 @@ final class DateFormat
     }
 
     /**
-     * Convert typed text to yyyy-mm-dd, or the INVALID marker for impossible dates.
+     * Convierte el texto digitado a yyyy-mm-dd, o a la marca INVALID si la fecha es imposible.
      */
     public static function toIso(string $text): string
     {
@@ -91,7 +91,7 @@ final class DateFormat
     }
 
     /**
-     * Format a date for display in tables and messages. Empty when there is no date.
+     * Da formato a una fecha para mostrarla en tablas y mensajes. Vacío cuando no hay fecha.
      */
     public static function format(mixed $value): string
     {
@@ -107,7 +107,7 @@ final class DateFormat
     }
 
     /**
-     * Format a date and time for display, for example 18/11/2026 14:30.
+     * Da formato a una fecha y hora para mostrarla, por ejemplo 18/11/2026 14:30.
      */
     public static function formatDateTime(mixed $value): string
     {
@@ -115,8 +115,8 @@ final class DateFormat
     }
 
     /**
-     * Value to put inside a date field: stored dates and flashed input become
-     * the display format, text the user typed is kept as it is.
+     * Valor que se coloca dentro de un campo de fecha: las fechas guardadas y la entrada
+     * reenviada pasan al formato de visualización; el texto digitado por el usuario se conserva tal cual.
      */
     public static function toDisplay(mixed $value): string
     {
@@ -130,7 +130,7 @@ final class DateFormat
     }
 
     /**
-     * Settings the browser needs to mask and parse date fields.
+     * Ajustes que el navegador necesita para enmascarar e interpretar los campos de fecha.
      *
      * @return array{order: array<int, string>, separator: string, placeholder: string}
      */

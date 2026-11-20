@@ -2,7 +2,10 @@
 
 namespace App\Services\Lending;
 
+use App\Enums\ConvencionTasa;
+use App\Enums\DayCount;
 use App\Enums\EstadoCuota;
+use App\Enums\ModalidadCuota;
 use App\Enums\TipoRecibo;
 use App\Models\LineaPrestamo;
 use App\Models\Prestamo;
@@ -12,23 +15,31 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Rebuilds a loan's payment plan from scratch every time it is requested.
+ * Reconstruye desde cero el plan de pagos de un préstamo cada vez que se solicita.
  *
- * Inputs are the loan terms, the active receipts and the active rate/term
- * revisions; nothing is read from or written to the database.
+ * Las entradas son los términos del préstamo, las condiciones de su línea (y las
+ * sobrescrituras propias del préstamo), los recibos activos y las revisiones activas
+ * de tasa/plazo; no se lee ni se escribe nada en la base de datos.
  *
- * Rules:
- *  - Interest accrues on the outstanding balance at (annual rate / 12) per
- *    month, prorated on 30/360 when an event falls inside a period.
- *  - A numbered receipt (full installment or interest only) closes that
- *    installment with the amounts actually paid.
- *  - A principal prepayment lowers the balance from its date. The installment
- *    stays the same, so the loan finishes earlier.
- *  - An interest-only receipt defers the principal: the installment is
- *    recalculated over the remaining periods.
- *  - A rate/term revision recalculates the installment from the next period.
- *  - A payoff receipt closes the loan on its date.
- *  - Unpaid installments are projected as if they were paid on time.
+ * Condiciones (ver LoanConditions):
+ *  - Tipo de cuota: nivelada (francés), lineal (alemán), solo intereses (bullet)
+ *    o graduada, cada una con período de gracia opcional y un pago global final.
+ *  - Base de días: Actual/360, Actual/365 o 30/360.
+ *  - Convención de tasa: nominal (simple) o efectiva anual.
+ *  - Frecuencia de pago: mensual, trimestral, semestral o anual.
+ *
+ * Reglas:
+ *  - El interés se devenga sobre el saldo pendiente. Los eventos dentro de un período
+ *    (abonos, revisiones) lo dividen en segmentos.
+ *  - Un recibo numerado (cuota completa o solo interés) cierra esa
+ *    cuota con los montos realmente pagados.
+ *  - Un abono a principal reduce el saldo desde su fecha. La cuota
+ *    se mantiene igual, así que el préstamo termina antes.
+ *  - Un recibo de solo interés difiere el principal: la cuota se
+ *    recalcula sobre los períodos restantes.
+ *  - Una revisión de tasa/plazo recalcula la cuota desde el siguiente período.
+ *  - Un recibo de cancelación cierra el préstamo en su fecha.
+ *  - Las cuotas impagas se proyectan como si se pagaran a tiempo.
  */
 final class LoanScheduleBuilder
 {
@@ -48,8 +59,8 @@ final class LoanScheduleBuilder
         ?Carbon $today = null,
     ): LoanSchedule {
         $today = ($today ?? today())->copy()->startOfDay();
-        $months = max($line->monthsPerPeriod(), 1);
-        $modality = $line->modalidad_cuota;
+        $conditions = LoanConditions::resolve($loan, $line);
+        $months = $conditions->monthsPerPeriod;
         $start = $loan->formalizacion->copy()->startOfDay();
 
         $receipts = collect($receipts)
@@ -71,19 +82,21 @@ final class LoanScheduleBuilder
         $revisionIndex = 0;
 
         $balance = round($loan->monto_prestamo, 2);
+        $balloon = round($conditions->balloonPercent / 100 * $balance, 2);
         $base = $loan->tasa_interes;
         $spread = $loan->tasa_spread;
         $rate = $base + $spread;
         $remaining = max((int) ceil($loan->plazo_meses / $months), 1);
+        $graceLeft = min($conditions->gracePeriods(), $remaining - 1);
 
-        [$installment, $fixedPrincipal] = $this->amortization($balance, $rate, $remaining, $months);
-        if ($modality === 'CONSTANTE' && $loan->cuota_calculada > 0) {
-            $installment = round($loan->cuota_calculada, 2);
-        }
+        $installment = null;
+        $fixedPrincipal = 0.0;
+        $growthIndex = 0;
+        $contractualPending = $loan->cuota_calculada > 0 && $conditions->modality->usesContractualInstallment();
+        $needsRecalculation = false;
 
         /** @var Collection<int, ScheduleRow> $rows */
         $rows = collect();
-        $needsRecalculation = false;
         $isClosed = false;
         $previousDue = $start;
 
@@ -99,21 +112,30 @@ final class LoanScheduleBuilder
 
                 if ($revision->plazo_restante_meses !== null) {
                     $remaining = max((int) ceil($revision->plazo_restante_meses / $months), 1);
+                    $graceLeft = min($graceLeft, $remaining - 1);
                 }
 
                 $needsRecalculation = true;
             }
 
-            if ($needsRecalculation) {
-                [$installment, $fixedPrincipal] = $this->amortization($balance, $rate, $remaining, $months);
+            // La cuota se calcula cuando inicia la amortización y después de cada evento que la modifica.
+            if ($graceLeft === 0 && ($installment === null || $needsRecalculation)) {
+                [$installment, $fixedPrincipal] = $this->amortization($conditions, $balance, $rate, $remaining, min($balloon, $balance));
+
+                if ($contractualPending) {
+                    $installment = round($loan->cuota_calculada, 2);
+                }
+
+                $contractualPending = false;
                 $needsRecalculation = false;
+                $growthIndex = 0;
             }
 
             $paidReceipt = $installmentReceipts->get($number);
 
             if ($payoff !== null && $this->payoffFallsInPeriod($payoff, $previousDue, $due, $paidReceipt !== null)) {
                 [$accrued, $balanceAtPayoff, $payoffRate, $prepaymentRows] = $this->accrue(
-                    $previousDue, $payoff->fecha_pago, $previousDue, $due, $balance, $base, $spread, $months, $prepayments, $revisions,
+                    $conditions, $previousDue, $payoff->fecha_pago, $previousDue, $due, $balance, $base, $spread, $prepayments, $revisions,
                 );
 
                 $rows = $rows->concat($prepaymentRows);
@@ -130,19 +152,21 @@ final class LoanScheduleBuilder
             }
 
             [$interest, $balanceAtDue, $rateAtDue, $prepaymentRows] = $this->accrue(
-                $previousDue, $due, $previousDue, $due, $balance, $base, $spread, $months, $prepayments, $revisions,
+                $conditions, $previousDue, $due, $previousDue, $due, $balance, $base, $spread, $prepayments, $revisions,
             );
             $interest = round($interest, 2);
             $rows = $rows->concat($prepaymentRows);
 
-            $scheduledPrincipal = $this->scheduledPrincipal($modality, $installment, $fixedPrincipal, $interest, $balanceAtDue, $remaining);
+            $scheduledPrincipal = $this->scheduledPrincipal(
+                $conditions, $installment ?? 0.0, $fixedPrincipal, $growthIndex, $interest, $balanceAtDue, $remaining, $graceLeft,
+            );
 
             if ($paidReceipt !== null) {
                 $paidPrincipal = $paidReceipt->tipo === TipoRecibo::CuotaCompleta ? $paidReceipt->monto_principal : 0.0;
                 $status = $paidReceipt->tipo === TipoRecibo::CuotaCompleta ? EstadoCuota::Pagada : EstadoCuota::ParcialInteres;
                 $principal = $paidPrincipal;
                 $paidInterest = $paidReceipt->monto_interes;
-                $needsRecalculation = $paidReceipt->tipo === TipoRecibo::ParcialInteres;
+                $needsRecalculation = $needsRecalculation || $paidReceipt->tipo === TipoRecibo::ParcialInteres;
             } else {
                 $status = $due->lt($today) ? EstadoCuota::Vencida : EstadoCuota::Pendiente;
                 $principal = $scheduledPrincipal;
@@ -172,6 +196,12 @@ final class LoanScheduleBuilder
             $balance = $balanceAfter;
             $remaining = max($remaining - 1, 1);
             $previousDue = $due;
+
+            if ($graceLeft > 0) {
+                $graceLeft--;
+            } else {
+                $growthIndex++;
+            }
         }
 
         return new LoanSchedule(
@@ -179,11 +209,12 @@ final class LoanScheduleBuilder
             round($loan->monto_prestamo, 2),
             $isClosed,
             $this->rateInForce($loan, $revisions, $today),
+            $conditions,
         );
     }
 
     /**
-     * Annual rate in percent that applies on the given date.
+     * Tasa anual en porcentaje que aplica en la fecha dada.
      *
      * @param  Collection<int, RevisionPrestamo>  $revisions
      */
@@ -201,7 +232,7 @@ final class LoanScheduleBuilder
     }
 
     /**
-     * Quote what it takes to pay the loan off on a given date.
+     * Cotiza lo necesario para cancelar el préstamo en una fecha dada.
      *
      * @return array{principal: float, interest: float}
      */
@@ -230,44 +261,95 @@ final class LoanScheduleBuilder
     }
 
     /**
-     * Installment amount and fixed principal for the given balance and term.
+     * Tasa de un período usada para dimensionar la cuota, para un período promedio.
      *
+     * Nominal: tasa anual × fracción del año (Actual/360 usa 365/360 de un año por período,
+     * que es como el banco dimensiona la cuota nivelada). Efectiva: (1 + tasa) ^ fracción − 1.
+     */
+    private function periodRate(LoanConditions $conditions, float $annualRate): float
+    {
+        $yearFraction = $conditions->monthsPerPeriod / 12;
+
+        if ($conditions->rateConvention === ConvencionTasa::Efectiva) {
+            return (1 + $annualRate / 100) ** $yearFraction - 1;
+        }
+
+        $actual360 = $conditions->dayCount->usesActualDays() && $conditions->dayCount->basis() === 360;
+
+        return $annualRate / 100 * $yearFraction * ($actual360 ? 365 / 360 : 1);
+    }
+
+    /**
+     * Cuota (o primera cuota cuando es graduada) y principal fijo para el saldo y plazo dados.
+     *
+     * @param  float  $balloon  Principal que queda por pagar en el último período.
      * @return array{0: float, 1: float}
      */
-    private function amortization(float $balance, float $annualRate, int $periods, int $months): array
+    private function amortization(LoanConditions $conditions, float $balance, float $annualRate, int $periods, float $balloon): array
     {
-        $periodRate = $annualRate / 100 * $months / 12;
+        $periodRate = $this->periodRate($conditions, $annualRate);
+        $periods = max($periods, 1);
+        $presentBalloon = $balloon / (1 + $periodRate) ** $periods;
+        $financed = $balance - $presentBalloon;
 
-        $installment = $periodRate > 0
-            ? $balance * $periodRate / (1 - (1 + $periodRate) ** -$periods)
-            : $balance / $periods;
+        $installment = match ($conditions->modality) {
+            ModalidadCuota::Bullet, ModalidadCuota::Decreciente => 0.0,
+            ModalidadCuota::Constante => $periodRate > 0
+                ? $financed * $periodRate / (1 - (1 + $periodRate) ** -$periods)
+                : ($balance - $balloon) / $periods,
+            ModalidadCuota::Creciente => $this->graduatedFirstInstallment($financed, $periodRate, $conditions->growthPercent / 100, $periods),
+        };
 
-        return [round($installment, 2), round($balance / $periods, 2)];
+        $fixedPrincipal = match ($conditions->modality) {
+            ModalidadCuota::Decreciente => ($balance - $balloon) / $periods,
+            default => 0.0,
+        };
+
+        return [round($installment, 2), round($fixedPrincipal, 2)];
+    }
+
+    /**
+     * Primera cuota de una serie que crece $growth cada período y amortiza $financed.
+     */
+    private function graduatedFirstInstallment(float $financed, float $periodRate, float $growth, int $periods): float
+    {
+        if (abs($periodRate - $growth) < 1e-12) {
+            return $financed * (1 + $periodRate) / $periods;
+        }
+
+        return $financed * ($periodRate - $growth) / (1 - ((1 + $growth) / (1 + $periodRate)) ** $periods);
     }
 
     private function scheduledPrincipal(
-        string $modality,
+        LoanConditions $conditions,
         float $installment,
         float $fixedPrincipal,
+        int $growthIndex,
         float $interest,
         float $balance,
         int $remaining,
+        int $graceLeft,
     ): float {
+        if ($graceLeft > 0) {
+            return 0.0;
+        }
+
         if ($remaining <= 1) {
             return $balance;
         }
 
-        $principal = match ($modality) {
-            'BULLET' => 0.0,
-            'DECRECIENTE' => $fixedPrincipal,
-            default => max($installment - $interest, 0.0),
+        $principal = match ($conditions->modality) {
+            ModalidadCuota::Bullet => 0.0,
+            ModalidadCuota::Decreciente => $fixedPrincipal,
+            ModalidadCuota::Constante => max($installment - $interest, 0.0),
+            ModalidadCuota::Creciente => max($installment * (1 + $conditions->growthPercent / 100) ** $growthIndex - $interest, 0.0),
         };
 
         return round(min($principal, $balance), 2);
     }
 
     /**
-     * Whether a payoff receipt closes the loan inside the period that ends at $due.
+     * Indica si un recibo de cancelación cierra el préstamo dentro del período que termina en $due.
      */
     private function payoffFallsInPeriod(Recibo $payoff, Carbon $previousDue, Carbon $due, bool $installmentIsPaid): bool
     {
@@ -281,14 +363,15 @@ final class LoanScheduleBuilder
     }
 
     /**
-     * Interest accrued from $from to $to, splitting the period at every
-     * prepayment and revision that falls strictly inside it.
+     * Interés devengado de $from a $to, dividiendo el período en cada
+     * abono y revisión que cae estrictamente dentro de él.
      *
      * @param  Collection<int, Recibo>  $prepayments
      * @param  Collection<int, RevisionPrestamo>  $revisions
-     * @return array{0: float, 1: float, 2: float, 3: list<ScheduleRow>} Interest, balance at $to, rate at $to and prepayment rows.
+     * @return array{0: float, 1: float, 2: float, 3: list<ScheduleRow>} Interés, saldo en $to, tasa en $to y filas de abonos.
      */
     private function accrue(
+        LoanConditions $conditions,
         Carbon $from,
         Carbon $to,
         Carbon $periodStart,
@@ -296,11 +379,9 @@ final class LoanScheduleBuilder
         float $balance,
         float $base,
         float $spread,
-        int $months,
         Collection $prepayments,
         Collection $revisions,
     ): array {
-        $periodDays = max($this->days360($periodStart, $periodEnd), 1);
         $strictlyInside = fn (Carbon $date): bool => $date->gt($from) && $date->lt($to);
 
         $points = $prepayments->map(fn (Recibo $receipt): Carbon => $receipt->fecha_pago)
@@ -314,9 +395,8 @@ final class LoanScheduleBuilder
         $rows = [];
         $cursor = $from;
 
-        $accrueTo = function (Carbon $point) use (&$interest, &$cursor, &$balance, &$base, &$spread, $periodDays, $months): void {
-            $fraction = $this->days360($cursor, $point) / $periodDays * ($months / 12);
-            $interest += $balance * (($base + $spread) / 100) * $fraction;
+        $accrueTo = function (Carbon $point) use (&$interest, &$cursor, &$balance, &$base, &$spread, $conditions, $periodStart, $periodEnd): void {
+            $interest += $balance * $this->interestFactor($conditions, $base + $spread, $cursor, $point, $periodStart, $periodEnd);
             $cursor = $point;
         };
 
@@ -348,7 +428,35 @@ final class LoanScheduleBuilder
     }
 
     /**
-     * Day count between two dates on the 30/360 convention.
+     * Interés por unidad de saldo entre dos fechas, según la base de días y la convención de tasa.
+     */
+    private function interestFactor(
+        LoanConditions $conditions,
+        float $annualRate,
+        Carbon $from,
+        Carbon $to,
+        Carbon $periodStart,
+        Carbon $periodEnd,
+    ): float {
+        if ($conditions->dayCount->usesActualDays()) {
+            $days = DayCount::actualDays($from, $to);
+            $yearFraction = $days / $conditions->dayCount->basis();
+            $effectiveFraction = $days / 365;
+        } else {
+            // 30/360: un período completo equivale exactamente a meses/12 de un año; los eventos dentro de él lo reparten proporcionalmente.
+            $periodDays = max($this->days360($periodStart, $periodEnd), 1);
+            $yearFraction = $effectiveFraction = $this->days360($from, $to) / $periodDays * ($conditions->monthsPerPeriod / 12);
+        }
+
+        if ($conditions->rateConvention === ConvencionTasa::Efectiva) {
+            return (1 + $annualRate / 100) ** $effectiveFraction - 1;
+        }
+
+        return $annualRate / 100 * $yearFraction;
+    }
+
+    /**
+     * Conteo de días entre dos fechas con la convención 30/360.
      */
     private function days360(Carbon $from, Carbon $to): int
     {
@@ -359,7 +467,7 @@ final class LoanScheduleBuilder
     }
 
     /**
-     * Order rows by date, with installments before prepayments on the same day.
+     * Ordena las filas por fecha, con las cuotas antes que los abonos el mismo día.
      *
      * @param  Collection<int, ScheduleRow>  $rows
      * @return Collection<int, ScheduleRow>

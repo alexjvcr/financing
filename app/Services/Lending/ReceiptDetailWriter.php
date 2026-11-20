@@ -9,21 +9,21 @@ use App\Models\TipoPago;
 use Illuminate\Support\Carbon;
 
 /**
- * Writes the payment detail lines (detalle_pago) of a receipt.
+ * Escribe las líneas de detalle de pago (detalle_pago) de un recibo.
  *
- * Each receipt type breaks down into payment types of the tipos_pago catalog:
- *  - Full installment: PP (principal) + PI (interest)
- *  - Interest-only installment: PC (partial payment)
- *  - Principal only: PP
- *  - Advance payment: PA
- *  - Payoff: CT (balance) + PI (accrued interest)
- * Other items paid with the receipt (monto_otros) become one extra line, OT by default.
+ * Cada tipo de recibo se desglosa en tipos de pago del catálogo tipos_pago:
+ *  - Cuota completa: PP (principal) + PI (interés)
+ *  - Cuota de solo interés: PC (pago parcial)
+ *  - Solo principal: PP
+ *  - Adelanto de cuota: PA
+ *  - Cancelación: CT (saldo) + PI (interés devengado)
+ * Los otros rubros pagados con el recibo (monto_otros) se convierten en una línea adicional, OT por defecto.
  */
 class ReceiptDetailWriter
 {
     /**
-     * @param  int|null  $installmentNumber  Installment the payment is applied to, taken from the payment plan.
-     * @param  Carbon|null  $installmentDate  Due date of that installment.
+     * @param  int|null  $installmentNumber  Cuota a la que se aplica el pago, tomada del plan de pagos.
+     * @param  Carbon|null  $installmentDate  Fecha de vencimiento de esa cuota.
      * @return array<int, DetallePago>
      */
     public function write(
@@ -61,7 +61,7 @@ class ReceiptDetailWriter
     }
 
     /**
-     * Payment type code => amount for the principal and interest of a receipt.
+     * Código de tipo de pago => monto para el principal y el interés de un recibo.
      *
      * @return array<string, float>
      */

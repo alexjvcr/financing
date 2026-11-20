@@ -13,12 +13,13 @@ use App\Services\Lending\ReceiptRegistrar;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
+use Tests\Concerns\CreatesLegacyPlanTable;
 use Tests\TestCase;
 
 class AnulacionesTest extends TestCase
 {
+    use CreatesLegacyPlanTable;
     use RefreshDatabase;
 
     protected LineaPrestamo $line;
@@ -44,7 +45,7 @@ class AnulacionesTest extends TestCase
     }
 
     /**
-     * Register the first three full installments: Jan-style sequence of payments.
+     * Registra las tres primeras cuotas completas: secuencia de pagos estilo enero.
      *
      * @return array<int, Recibo>
      */
@@ -64,17 +65,10 @@ class AnulacionesTest extends TestCase
 
     protected function createLegacyPlan(): void
     {
-        Schema::create('planpagos', function ($table): void {
-            $table->id();
-            $table->unsignedBigInteger('prestamo_id');
-            $table->integer('numero_cuota');
-            $table->string('estado');
-            $table->dateTime('fecha_pago_real')->nullable();
-            $table->dateTime('updated_at')->nullable();
-        });
+        $this->createLegacyPlanTable();
 
         foreach ([1, 2, 3, 4] as $number) {
-            DB::table('planpagos')->insert(['prestamo_id' => $this->loan->id, 'numero_cuota' => $number, 'estado' => 'P']);
+            $this->insertLegacyRow(['prestamo_id' => $this->loan->id, 'numero_cuota' => $number]);
         }
     }
 
@@ -122,7 +116,7 @@ class AnulacionesTest extends TestCase
         $this->createLegacyPlan();
         [$first, $second] = $this->payThreeInstallments();
 
-        $this->assertSame(['C', 'C', 'C', 'P'], DB::table('planpagos')->orderBy('numero_cuota')->pluck('estado')->all());
+        $this->assertSame(['C', 'C', 'C', 'P'], $this->legacyStatuses($this->loan->id));
         $this->assertEqualsWithDelta(5839594.07, $this->loan->fresh()->saldo_prestamo, 0.001);
 
         $third = Recibo::where('numero_cuota', 3)->firstOrFail();
@@ -133,7 +127,7 @@ class AnulacionesTest extends TestCase
         $this->assertSame('2026-06-01', $loan->proximo_pago->toDateString());
         $this->assertEqualsWithDelta(65000000 - 5893240.74, $this->line->fresh()->disponible, 0.001);
 
-        $this->assertSame(['C', 'C', 'P', 'P'], DB::table('planpagos')->orderBy('numero_cuota')->pluck('estado')->all());
+        $this->assertSame(['C', 'C', 'P', 'P'], $this->legacyStatuses($this->loan->id));
         $this->assertNull(DB::table('planpagos')->where('numero_cuota', 3)->value('fecha_pago_real'));
         $this->assertNotNull(DB::table('planpagos')->where('numero_cuota', 2)->value('fecha_pago_real'));
     }
@@ -166,7 +160,7 @@ class AnulacionesTest extends TestCase
             'monto_principal' => 53646.67, 'monto_interes' => 19644.14,
         ], 'jperez');
 
-        $this->assertSame(['C', 'C', 'C', 'P'], DB::table('planpagos')->orderBy('numero_cuota')->pluck('estado')->all());
+        $this->assertSame(['C', 'C', 'C', 'P'], $this->legacyStatuses($this->loan->id));
         $this->assertSame(1, Recibo::where('numero_cuota', 3)->where('estado', Recibo::STATUS_ACTIVE)->count());
         $this->assertSame(2, Recibo::where('numero_cuota', 3)->count());
     }

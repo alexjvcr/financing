@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Voiding screen: what can be voided right now and the audit history of what was voided.
+ * Pantalla de anulaciones: lo que se puede anular en este momento y el historial de auditoría de lo anulado.
  */
 class AnulacionController extends Controller
 {
@@ -35,7 +35,7 @@ class AnulacionController extends Controller
             ->orderBy('numero_prestamo')
             ->get();
 
-        // Only the most recent receipt and revision of each loan can be voided now.
+        // Por ahora solo se puede anular el recibo y la revisión más recientes de cada préstamo.
         $voidableReceipts = $loans->map(fn (Prestamo $loan): ?Recibo => $this->receipts->latestActive($loan))->filter()->values();
         $voidableRevisions = $loans->map(fn (Prestamo $loan): ?RevisionPrestamo => $this->revisions->latestActive($loan))->filter()->values();
 

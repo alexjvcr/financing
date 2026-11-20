@@ -30,7 +30,7 @@ class LineaPrestamoFactory extends Factory
             'capital_trabajo' => 0,
             'moneda' => 'DOLARES',
             'forma_pago' => 'VENCIMIENTO',
-            'calendario' => '365/360',
+            'calendario' => '360/360',
             'tipo_cuota' => 'NOMINAL',
             'periodicidad_pago' => 12,
             'tipo_interes' => 'BASE_SPREAD',

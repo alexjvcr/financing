@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class TipoPagoFactory extends Factory
 {
     /**
-     * A custom (non system) payment type, usable as an "other items" concept.
+     * Un tipo de pago personalizado (no de sistema), utilizable como concepto de "otros rubros".
      *
      * @return array<string, mixed>
      */

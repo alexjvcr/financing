@@ -51,7 +51,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .icon { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
 .icon-small { width: 1rem; height: 1rem; }
 
-/* Layout */
+/* Diseño */
 .app-shell { min-height: 100vh; }
 
 .sidebar {
@@ -86,7 +86,7 @@ body.sidebar-collapsed .main { margin-left: 0; }
     body.sidebar-open .sidebar-backdrop { display: block; position: fixed; inset: 0; z-index: 20; background: rgba(15, 23, 42, .5); }
 }
 
-/* Sidebar */
+/* Barra lateral */
 .sidebar-brand { display: flex; align-items: center; gap: .75rem; padding: 1.25rem 1.25rem 1rem; color: #fff; font-weight: 600; font-size: 1.1rem; }
 .brand-mark { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: .5rem; background: var(--primary); color: #fff; font-weight: 700; }
 [data-theme='dark'] .brand-mark { color: #0b1120; }
@@ -121,7 +121,7 @@ a.nav-link:hover, .logout-link:hover { background: var(--sidebar-hover); color: 
 
 .avatar { display: grid; place-items: center; width: 2rem; height: 2rem; flex-shrink: 0; border-radius: 50%; background: var(--primary-soft); color: var(--primary); font-weight: 700; }
 
-/* Topbar */
+/* Barra superior */
 .topbar {
     position: sticky;
     top: 0;
@@ -163,7 +163,7 @@ a.nav-link:hover, .logout-link:hover { background: var(--sidebar-hover); color: 
 .dropdown-item { display: flex; align-items: center; gap: .6rem; width: 100%; padding: .55rem .75rem; border: 0; border-radius: .5rem; background: transparent; text-align: left; }
 .dropdown-item:hover { background: var(--surface-muted); }
 
-/* Content */
+/* Contenido */
 .content { flex: 1; padding: 1.5rem; }
 .greeting { margin: 0 0 1.25rem; color: var(--text-muted); }
 .greeting strong { color: var(--text); }
@@ -206,10 +206,10 @@ tfoot td { border-top: 2px solid var(--border); border-bottom: 0; font-weight: 7
 
 .page-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-size: .85rem; }
 
-/* Navigation sections */
+/* Secciones de navegación */
 .nav-section { margin: 1rem .75rem .25rem; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--sidebar-text); opacity: .7; }
 
-/* Alerts */
+/* Alertas */
 .alert { margin: 0 0 1rem; padding: .75rem 1rem; border-radius: .5rem; font-size: .9rem; }
 .alert ul { margin: 0; padding-left: 1.1rem; }
 .alert-success { background: #dcfce7; color: #166534; }
@@ -218,7 +218,7 @@ tfoot td { border-top: 2px solid var(--border); border-bottom: 0; font-weight: 7
 [data-theme='dark'] .alert-success { background: #14532d; color: #bbf7d0; }
 [data-theme='dark'] .alert-info { color: #dbeafe; }
 
-/* Buttons */
+/* Botones */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .5rem .9rem; border: 1px solid var(--border); border-radius: .5rem; background: var(--surface); color: var(--text); font-size: .875rem; font-weight: 600; text-decoration: none; cursor: pointer; }
 .btn:hover { background: var(--surface-muted); }
 .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
@@ -227,7 +227,7 @@ tfoot td { border-top: 2px solid var(--border); border-bottom: 0; font-weight: 7
 .btn-danger { color: var(--danger); }
 .btn-small { padding: .25rem .6rem; font-size: .8rem; }
 
-/* Page layout helpers */
+/* Utilidades de diseño de página */
 .card-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .card-header .card-title { margin: 0; }
 .header-actions, .page-actions { display: flex; align-items: center; gap: .5rem; }
@@ -245,7 +245,7 @@ td.actions { display: flex; justify-content: flex-end; gap: .4rem; }
 [data-theme='dark'] .badge-success { background: #14532d; color: #bbf7d0; }
 [data-theme='dark'] .badge-info { color: #dbeafe; }
 
-/* Forms */
+/* Formularios */
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
 .form-field { display: flex; flex-direction: column; gap: .3rem; }
 .form-field[hidden] { display: none; }
@@ -258,7 +258,7 @@ td.actions { display: flex; justify-content: flex-end; gap: .4rem; }
 .form-actions { grid-column: 1 / -1; display: flex; gap: .5rem; }
 a { color: var(--primary); }
 
-/* Modern forms */
+/* Formularios modernos */
 .form-heading { margin-bottom: 1.25rem; }
 .form-heading h2 { margin: 0; font-size: 1.4rem; }
 .form-heading p { margin: .25rem 0 0; color: var(--text-muted); }
@@ -302,7 +302,7 @@ a { color: var(--primary); }
 .empty-state h3 { margin: .5rem 0 0; font-size: 1.15rem; }
 .empty-state p { max-width: 32rem; margin: 0 0 .75rem; color: var(--text-muted); }
 
-/* Soft colour tones for form boxes */
+/* Tonos de color suaves para los cuadros del formulario */
 .tone-blue { --tone: #2563eb; }
 .tone-green { --tone: #16a34a; }
 .tone-amber { --tone: #d97706; }
@@ -319,7 +319,7 @@ a { color: var(--primary); }
     --tone-border: color-mix(in srgb, var(--tone) 35%, var(--surface));
 }
 
-/* Hero banner of the form */
+/* Banner principal del formulario */
 .form-hero { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; padding: 1.5rem 1.75rem; border: 1px solid var(--tone-border); border-radius: 1rem; background: linear-gradient(120deg, var(--tone-soft), var(--tone-bg)); }
 .hero-icon { display: grid; place-items: center; width: 4rem; height: 4rem; flex-shrink: 0; border-radius: 1rem; background: var(--tone); color: #fff; box-shadow: 0 6px 16px color-mix(in srgb, var(--tone) 35%, transparent); }
 [data-theme='dark'] .hero-icon { color: #0b1120; }
@@ -327,7 +327,7 @@ a { color: var(--primary); }
 .form-hero h2 { margin: 0; font-size: 1.7rem; }
 .form-hero p { margin: .3rem 0 0; color: var(--text-muted); font-size: 1.05rem; }
 
-/* Coloured boxes */
+/* Cuadros de colores */
 .form-section { border: 1px solid var(--tone-border); border-left: 6px solid var(--tone); background: var(--tone-bg); }
 .form-section .section-header { background: var(--tone-soft); border-bottom: 1px solid var(--tone-border); padding: 1.1rem 1.4rem; }
 .form-section .section-header h3 { font-size: 1.3rem; color: var(--text); }
@@ -337,7 +337,7 @@ a { color: var(--primary); }
 .form-section .section-icon .icon { width: 1.6rem; height: 1.6rem; }
 .form-section .section-fields { padding: 1.4rem; gap: 1.3rem 1.5rem; }
 
-/* Larger text and field icons */
+/* Texto más grande e íconos en los campos */
 .form-section .form-field label { display: flex; align-items: center; gap: .5rem; font-size: 1rem; font-weight: 600; }
 .label-icon { width: 1.15rem; height: 1.15rem; color: var(--tone); }
 .form-section .form-field input, .form-section .form-field select { font-size: 1.05rem; min-height: 3rem; }
@@ -345,7 +345,7 @@ a { color: var(--primary); }
 .form-section .input-wrap:focus-within, .form-section .form-field select:focus { border-color: var(--tone); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tone) 22%, transparent); }
 .form-section .hint { font-size: .85rem; }
 
-/* Coloured buttons */
+/* Botones de colores */
 .btn-lg { padding: .85rem 1.25rem; font-size: 1.05rem; border-radius: .75rem; }
 .btn .icon { width: 1.15rem; height: 1.15rem; }
 .btn-success { background: #16a34a; border-color: #16a34a; color: #fff; box-shadow: 0 4px 12px rgba(22, 163, 74, .25); }
@@ -362,7 +362,7 @@ a { color: var(--primary); }
 .line-info .aside-title { font-size: 1.1rem; color: var(--tone); }
 .line-info dl > div { font-size: .95rem; }
 
-/* Label on the left, control on the right, aligned in straight columns */
+/* Etiqueta a la izquierda, control a la derecha, alineados en columnas rectas */
 .form-section .section-fields { display: flex; flex-direction: column; gap: 0; padding: .5rem 1.4rem; }
 .form-section .form-field,
 .form-section .form-field.span-2 {

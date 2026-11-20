@@ -10,12 +10,12 @@ use App\Models\Recibo;
 use App\Models\TipoPago;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Tests\Concerns\CreatesLegacyPlanTable;
 use Tests\TestCase;
 
 class ImportPaidInstallmentsTest extends TestCase
 {
+    use CreatesLegacyPlanTable;
     use RefreshDatabase;
 
     protected Prestamo $loan;
@@ -26,16 +26,7 @@ class ImportPaidInstallmentsTest extends TestCase
 
         Carbon::setTestNow('2026-11-18');
 
-        Schema::create('planpagos', function ($table): void {
-            $table->id();
-            $table->unsignedBigInteger('prestamo_id');
-            $table->integer('numero_cuota');
-            $table->date('fecha_pago');
-            $table->decimal('monto_principal', 18, 2);
-            $table->decimal('monto_interes', 18, 2);
-            $table->string('estado');
-            $table->dateTime('fecha_pago_real')->nullable();
-        });
+        $this->createLegacyPlanTable();
 
         $line = LineaPrestamo::factory()->create();
         $this->loan = Prestamo::factory()->create([
@@ -43,11 +34,9 @@ class ImportPaidInstallmentsTest extends TestCase
             'cuota_calculada' => 73290.81,
         ]);
 
-        DB::table('planpagos')->insert([
-            ['prestamo_id' => $this->loan->id, 'numero_cuota' => 1, 'fecha_pago' => '2026-04-01', 'monto_principal' => 53290.81, 'monto_interes' => 20000, 'estado' => 'C', 'fecha_pago_real' => null],
-            ['prestamo_id' => $this->loan->id, 'numero_cuota' => 2, 'fecha_pago' => '2026-05-01', 'monto_principal' => 53468.45, 'monto_interes' => 19822.36, 'estado' => 'C', 'fecha_pago_real' => '2026-03-09 00:00:00'],
-            ['prestamo_id' => $this->loan->id, 'numero_cuota' => 3, 'fecha_pago' => '2026-06-01', 'monto_principal' => 53646.67, 'monto_interes' => 19644.14, 'estado' => 'P', 'fecha_pago_real' => null],
-        ]);
+        $this->insertLegacyRow(['prestamo_id' => $this->loan->id, 'numero_cuota' => 1, 'fecha_pago' => '2026-04-01', 'monto_principal' => 53290.81, 'monto_interes' => 20000, 'estado' => 'C', 'fecha_pago_real' => null]);
+        $this->insertLegacyRow(['prestamo_id' => $this->loan->id, 'numero_cuota' => 2, 'fecha_pago' => '2026-05-01', 'monto_principal' => 53468.45, 'monto_interes' => 19822.36, 'estado' => 'C', 'fecha_pago_real' => '2026-03-09 00:00:00']);
+        $this->insertLegacyRow(['prestamo_id' => $this->loan->id, 'numero_cuota' => 3, 'fecha_pago' => '2026-06-01', 'monto_principal' => 53646.67, 'monto_interes' => 19644.14, 'estado' => 'P', 'fecha_pago_real' => null]);
     }
 
     public function test_paid_installments_become_receipts_and_the_loan_is_refreshed(): void

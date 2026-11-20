@@ -19,7 +19,7 @@ class LoginController extends Controller
     public function __construct(protected ActiveDirectoryAuthenticator $directory) {}
 
     /**
-     * Sign in the Windows session user, or show the Active Directory login form.
+     * Inicia sesión con el usuario de la sesión de Windows, o muestra el formulario de acceso de Active Directory.
      */
     public function create(Request $request): View|RedirectResponse
     {
@@ -37,7 +37,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Validate the typed credentials against Active Directory.
+     * Valida las credenciales ingresadas contra Active Directory.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -64,7 +64,7 @@ class LoginController extends Controller
     }
 
     /**
-     * Sign the user out and keep the Windows session from signing them back in.
+     * Cierra la sesión del usuario e impide que la sesión de Windows vuelva a iniciarla.
      */
     public function destroy(Request $request): RedirectResponse
     {

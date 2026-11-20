@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
- * Shared search/list/create/edit/delete screens for the configuration tables.
+ * Pantallas compartidas de búsqueda, listado, creación, edición y eliminación para las tablas de configuración.
  */
 abstract class CatalogController extends Controller
 {
@@ -26,19 +26,19 @@ abstract class CatalogController extends Controller
     abstract protected function singular(): string;
 
     /**
-     * Route name prefix, for example "empresas".
+     * Prefijo del nombre de ruta, por ejemplo "empresas".
      */
     abstract protected function routeBase(): string;
 
     /**
-     * Column label => callback that renders the cell for a record.
+     * Etiqueta de columna => callback que renderiza la celda de un registro.
      *
      * @return array<string, callable(Model): mixed>
      */
     abstract protected function columns(): array;
 
     /**
-     * Field name => definition (label, type, options, step, hint, required).
+     * Nombre del campo => definición (etiqueta, tipo, opciones, paso, ayuda, obligatorio).
      *
      * @return array<string, array<string, mixed>>
      */
@@ -50,7 +50,7 @@ abstract class CatalogController extends Controller
     abstract protected function rules(?Model $record): array;
 
     /**
-     * Section title => icon and description, for forms that group their fields.
+     * Título de sección => ícono y descripción, para formularios que agrupan sus campos.
      *
      * @return array<string, array{icon: string, description: string}>
      */
@@ -60,7 +60,7 @@ abstract class CatalogController extends Controller
     }
 
     /**
-     * Columns matched by the search box.
+     * Columnas en las que busca el cuadro de búsqueda.
      *
      * @return array<int, string>
      */
@@ -70,7 +70,7 @@ abstract class CatalogController extends Controller
     }
 
     /**
-     * Relations the listing needs, to avoid one query per row.
+     * Relaciones que necesita el listado, para evitar una consulta por fila.
      *
      * @return array<int, string>
      */
@@ -92,7 +92,7 @@ abstract class CatalogController extends Controller
     }
 
     /**
-     * Reasons why a record cannot be deleted because other rows reference it.
+     * Motivos por los que un registro no se puede eliminar porque otros registros lo referencian.
      *
      * @return array<int, string>
      */
@@ -102,7 +102,7 @@ abstract class CatalogController extends Controller
     }
 
     /**
-     * Remove the record and anything that only exists to describe it.
+     * Elimina el registro y todo lo que solo existe para describirlo.
      */
     protected function deleteRecord(Model $record): void
     {
@@ -110,7 +110,7 @@ abstract class CatalogController extends Controller
     }
 
     /**
-     * Let a screen change its fields for the record being edited, for example to lock some of them.
+     * Permite que una pantalla cambie sus campos para el registro que se edita, por ejemplo para bloquear algunos.
      *
      * @param  array<string, array<string, mixed>>  $fields
      * @return array<string, array<string, mixed>>
@@ -121,7 +121,7 @@ abstract class CatalogController extends Controller
     }
 
     /**
-     * Attribute values derived from the validated input.
+     * Valores de atributos derivados de los datos validados.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -142,7 +142,7 @@ abstract class CatalogController extends Controller
     }
 
     /**
-     * Text used to name a record in messages and confirmation dialogs.
+     * Texto usado para nombrar un registro en mensajes y cuadros de confirmación.
      */
     protected function recordLabel(Model $record): string
     {

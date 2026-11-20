@@ -49,7 +49,7 @@ class ImportPaidInstallments extends Command
             $paymentDate = substr((string) ($row->fecha_pago_real ?: $row->fecha_pago), 0, 10);
             $note = 'Importado de planpagos';
 
-            // Payments follow the installment order: never earlier than the previous receipt of the loan.
+            // Los pagos siguen el orden de las cuotas: nunca anteriores al recibo previo del préstamo.
             $previousDate = $previousDates[$row->prestamo_id] ??= substr((string) Recibo::query()->where('prestamo_id', $row->prestamo_id)->active()->max('fecha_pago'), 0, 10) ?: null;
             if ($previousDate !== null && $paymentDate < $previousDate) {
                 $note .= ' (fecha real de pago: '.DateFormat::format($paymentDate).')';

@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Lets every form show and submit dates in the configured format (DATE_FORMAT).
+ * Permite que todos los formularios muestren y envíen fechas en el formato configurado (DATE_FORMAT).
  *
- * The <x-date-input> component adds a hidden "_dates[]" entry per date field.
- * Those fields are converted to yyyy-mm-dd before validation, so controllers
- * keep using the plain "date" rule and models keep receiving ISO dates.
+ * El componente <x-date-input> agrega una entrada oculta "_dates[]" por cada campo de fecha.
+ * Esos campos se convierten a yyyy-mm-dd antes de validar, de modo que los controladores
+ * siguen usando la regla simple "date" y los modelos siguen recibiendo fechas ISO.
  */
 class ConvertDisplayDates
 {

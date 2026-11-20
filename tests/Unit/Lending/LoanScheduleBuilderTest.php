@@ -67,7 +67,7 @@ class LoanScheduleBuilderTest extends TestCase
     }
 
     /**
-     * The two installments already paid in the legacy planpagos table.
+     * Las dos cuotas ya pagadas en la tabla heredada planpagos.
      *
      * @return array<int, Recibo>
      */

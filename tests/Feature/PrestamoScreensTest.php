@@ -11,11 +11,12 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Tests\Concerns\CreatesLegacyPlanTable;
 use Tests\TestCase;
 
 class PrestamoScreensTest extends TestCase
 {
+    use CreatesLegacyPlanTable;
     use RefreshDatabase;
 
     protected LineaPrestamo $line;
@@ -278,16 +279,13 @@ class PrestamoScreensTest extends TestCase
         $withRevision = $this->createLoan(['numero_prestamo' => '1002']);
         $this->post(route('prestamos.revisiones.store', $withRevision), ['fecha_efectiva' => '2026-07-01', 'tasa_interes' => 1]);
 
-        Schema::create('planpagos', function ($table): void {
-            $table->id();
-            $table->unsignedBigInteger('prestamo_id');
-        });
+        $this->createLegacyPlanTable();
         $withLegacy = $this->createLoan(['numero_prestamo' => '1003']);
-        DB::table('planpagos')->insert(['prestamo_id' => $withLegacy->id]);
+        DB::table('planpagos')->where('prestamo_id', $withLegacy->id)->where('numero_cuota', 1)->update(['estado' => 'C']);
 
         $this->delete(route('prestamos.destroy', $withReceipt))->assertSessionHasErrors(['delete' => 'No se puede eliminar el sub préstamo 1001: tiene 1 recibo(s) registrado(s).']);
         $this->delete(route('prestamos.destroy', $withRevision))->assertSessionHasErrors(['delete' => 'No se puede eliminar el sub préstamo 1002: tiene 1 revisión(es) de tasa o plazo.']);
-        $this->delete(route('prestamos.destroy', $withLegacy))->assertSessionHasErrors(['delete' => 'No se puede eliminar el sub préstamo 1003: tiene 1 cuota(s) en la tabla histórica planpagos.']);
+        $this->delete(route('prestamos.destroy', $withLegacy))->assertSessionHasErrors(['delete' => 'No se puede eliminar el sub préstamo 1003: tiene 1 cuota(s) pagada(s) en la tabla histórica planpagos.']);
         $this->assertSame(3, Prestamo::count());
 
         $this->get(route('prestamos.index'))->assertOk()->assertSee('En uso');
@@ -341,11 +339,11 @@ class PrestamoScreensTest extends TestCase
     {
         $content = $this->get(route('dashboard'))->assertOk()->getContent();
 
-        foreach (['Reportes', 'Estado de cuenta', 'Alertas de vencimiento', 'Roles y permisos', 'Auditoría'] as $label) {
-            $this->assertMatchesRegularExpression('/class="nav-link is-disabled"[^>]*>\s*<svg.*?<\/svg>\s*'.preg_quote($label, '/').'\s*<span class="nav-badge">Pronto<\/span>/s', $content, "{$label} should be a disabled menu item.");
+        foreach (['Flujo de efectivo proyectado (13 semanas)', 'Ciclo de conversión de efectivo', 'Estado de cuenta', 'Alertas de vencimiento', 'Roles y permisos', 'Auditoría'] as $label) {
+            $this->assertMatchesRegularExpression('/class="nav-link (?:nav-sub )?is-disabled"[^>]*>\s*<svg.*?<\/svg>\s*'.preg_quote($label, '/').'\s*<span class="nav-badge">Pronto<\/span>/s', $content, "{$label} should be a disabled menu item.");
         }
 
-        $this->assertSame(5, substr_count($content, '<span class="nav-badge">Pronto</span>'));
+        $this->assertSame(6, substr_count($content, '<span class="nav-badge">Pronto</span>'));
         $this->assertStringNotContainsString('href="#"', $content);
     }
 

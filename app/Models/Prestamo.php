@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable([
     'id_lineas_prestamos', 'numero_prestamo', 'monto_prestamo', 'formalizacion', 'plazo_meses', 'tasa_interes',
     'tasa_spread', 'cuota_calculada', 'vencimiento', 'proximo_pago', 'saldo_prestamo', 'estado', 'observacion',
+    'modalidad_pago', 'modalidad_cuota', 'calendario', 'tipo_cuota', 'forma_pago', 'meses_gracia', 'porcentaje_global',
+    'variacion_porcentual',
 ])]
 #[UseFactory(PrestamoFactory::class)]
 class Prestamo extends Model
@@ -38,6 +40,9 @@ class Prestamo extends Model
             'tasa_spread' => 'float',
             'cuota_calculada' => 'float',
             'saldo_prestamo' => 'float',
+            'meses_gracia' => 'integer',
+            'porcentaje_global' => 'float',
+            'variacion_porcentual' => 'float',
             'formalizacion' => 'date',
             'vencimiento' => 'date',
             'proximo_pago' => 'date',
@@ -58,7 +63,7 @@ class Prestamo extends Model
     }
 
     /**
-     * Annual rate in percent: base rate plus spread.
+     * Tasa anual en porcentaje: tasa base más diferencial.
      */
     public function initialAnnualRate(): float
     {

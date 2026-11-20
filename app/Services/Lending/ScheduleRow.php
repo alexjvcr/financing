@@ -7,8 +7,8 @@ use App\Models\Recibo;
 use Illuminate\Support\Carbon;
 
 /**
- * One line of a rebuilt payment plan: an installment, a principal
- * prepayment or the final payoff.
+ * Una línea de un plan de pagos reconstruido: una cuota, un abono a principal
+ * o la cancelación final.
  */
 final class ScheduleRow
 {
@@ -19,11 +19,11 @@ final class ScheduleRow
     public const KIND_PAYOFF = 'cancelacion';
 
     /**
-     * @param  float  $principal  Paid principal for settled rows, scheduled principal for open ones.
-     * @param  float  $interest  Paid interest for settled rows, scheduled interest for open ones.
-     * @param  float  $balance  Principal balance after this row.
-     * @param  float  $scheduledPrincipal  What the plan expected. For a payoff row, the balance owed on that date.
-     * @param  float  $scheduledInterest  What the plan expected. For a payoff row, the interest accrued to that date.
+     * @param  float  $principal  Principal pagado en las filas saldadas, principal programado en las abiertas.
+     * @param  float  $interest  Interés pagado en las filas saldadas, interés programado en las abiertas.
+     * @param  float  $balance  Saldo de principal después de esta fila.
+     * @param  float  $scheduledPrincipal  Lo que esperaba el plan. En una fila de cancelación, el saldo adeudado en esa fecha.
+     * @param  float  $scheduledInterest  Lo que esperaba el plan. En una fila de cancelación, el interés acumulado a esa fecha.
      */
     public function __construct(
         public readonly string $kind,
@@ -55,7 +55,7 @@ final class ScheduleRow
     }
 
     /**
-     * Whether what was paid differs from what the plan expected.
+     * Indica si lo pagado difiere de lo que esperaba el plan.
      */
     public function hasVariance(): bool
     {
