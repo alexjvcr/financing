@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnulacionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BancoController;
 use App\Http\Controllers\DashboardController;
@@ -30,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('prestamos', PrestamoController::class);
     Route::get('prestamos/{prestamo}/cotizacion', [PrestamoController::class, 'quote'])->name('prestamos.cotizacion');
     Route::post('prestamos/{prestamo}/recibos', [ReciboController::class, 'store'])->name('prestamos.recibos.store');
+    Route::get('anulaciones', [AnulacionController::class, 'index'])->name('anulaciones.index');
     Route::get('recibos', [ReciboController::class, 'index'])->name('recibos.index');
     Route::post('recibos/{recibo}/anular', [ReciboController::class, 'void'])->name('recibos.anular');
     Route::post('prestamos/{prestamo}/revisiones', [RevisionController::class, 'store'])->name('prestamos.revisiones.store');

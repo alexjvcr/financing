@@ -27,10 +27,16 @@ class RevisionController extends Controller
         return redirect()->route('prestamos.show', $prestamo)->with('status', 'Revisión registrada. El plan de pagos se recalculó.');
     }
 
-    public function void(RevisionPrestamo $revision): RedirectResponse
+    public function void(Request $request, RevisionPrestamo $revision): RedirectResponse
     {
-        $this->registrar->void($revision);
+        $data = $request->validate(['motivo' => ['required', 'string', 'max:255']]);
 
-        return redirect()->route('prestamos.show', $revision->prestamo_id)->with('status', 'Revisión anulada.');
+        $this->registrar->void($revision, $data['motivo'], $request->user()->email);
+
+        $target = $request->input('volver') === 'anulaciones'
+            ? redirect()->route('anulaciones.index')
+            : redirect()->route('prestamos.show', $revision->prestamo_id);
+
+        return $target->with('status', 'Revisión anulada. El plan de pagos se recalculó.');
     }
 }

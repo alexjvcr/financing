@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Table('prestamo_revisiones')]
 #[Fillable([
     'prestamo_id', 'fecha_efectiva', 'tasa_interes', 'tasa_spread', 'plazo_restante_meses', 'observacion',
-    'usuario', 'anulado_at',
+    'usuario', 'anulado_at', 'anulado_por', 'motivo_anulacion',
 ])]
 #[UseFactory(RevisionPrestamoFactory::class)]
 class RevisionPrestamo extends Model

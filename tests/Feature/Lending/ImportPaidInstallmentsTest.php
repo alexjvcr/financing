@@ -58,7 +58,8 @@ class ImportPaidInstallmentsTest extends TestCase
 
         $second = Recibo::where('numero_cuota', 2)->firstOrFail();
         $this->assertSame(TipoRecibo::CuotaCompleta, $second->tipo);
-        $this->assertSame('2026-03-09', $second->fecha_pago->toDateString());
+        $this->assertSame('2026-04-01', $second->fecha_pago->toDateString());
+        $this->assertStringContainsString('fecha real de pago: 09/03/2026', $second->observaciones);
         $this->assertSame(Recibo::where('numero_cuota', 1)->firstOrFail()->fecha_pago->toDateString(), '2026-04-01');
 
         $this->loan->refresh();
@@ -68,7 +69,7 @@ class ImportPaidInstallmentsTest extends TestCase
         $this->assertSame(4, DetallePago::count());
         $principalLine = DetallePago::where('numero_cuota', 2)->where('tipo_pago_id', TipoPago::where('codigo', 'PP')->value('id'))->firstOrFail();
         $this->assertSame('2026-05-01', $principalLine->fecha_cuota->toDateString());
-        $this->assertSame('2026-03-09', $principalLine->fecha_pago->toDateString());
+        $this->assertSame('2026-04-01', $principalLine->fecha_pago->toDateString());
         $this->assertSame(53468.45, $principalLine->monto);
         $this->assertEqualsWithDelta(65000000 - 5893240.74, $this->loan->linea->fresh()->disponible, 0.001);
     }

@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Table('recibos')]
 #[Fillable([
     'prestamo_id', 'tipo', 'numero_cuota', 'fecha_pago', 'monto_principal', 'monto_interes', 'monto_otros', 'observaciones',
-    'usuario', 'estado', 'anulado_at', 'motivo_anulacion',
+    'usuario', 'estado', 'anulado_at', 'anulado_por', 'motivo_anulacion',
 ])]
 #[UseFactory(ReciboFactory::class)]
 class Recibo extends Model

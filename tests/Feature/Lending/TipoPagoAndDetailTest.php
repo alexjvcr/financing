@@ -140,7 +140,7 @@ class TipoPagoAndDetailTest extends TestCase
     {
         $withoutOthers = $this->registrar->register($this->loan, $this->installment(), 'jperez');
         $balance = $this->loan->fresh()->saldo_prestamo;
-        $this->registrar->void($withoutOthers, 'Prueba');
+        $this->registrar->void($withoutOthers, 'Prueba', 'tester');
 
         $receipt = $this->registrar->register($this->loan, $this->installment() + [
             'monto_otros' => 500, 'descripcion_otros' => 'Comisión de desembolso',
@@ -160,7 +160,7 @@ class TipoPagoAndDetailTest extends TestCase
 
         $receipt = $this->registrar->register($this->loan, $this->installment() + ['monto_otros' => 200, 'tipo_pago_otros_id' => $custom->id], 'jperez');
         $this->assertSame(['PP' => 53290.81, 'PI' => 20000.0, 'SG' => 200.0], $this->lineAmounts($receipt));
-        $this->registrar->void($receipt, 'Prueba');
+        $this->registrar->void($receipt, 'Prueba', 'tester');
 
         try {
             $this->registrar->register($this->loan, $this->installment() + ['monto_otros' => 200, 'tipo_pago_otros_id' => $principal->id], 'jperez');
@@ -173,7 +173,7 @@ class TipoPagoAndDetailTest extends TestCase
     public function test_voiding_a_receipt_keeps_its_detail_marked_through_the_receipt(): void
     {
         $receipt = $this->registrar->register($this->loan, $this->installment(), 'jperez');
-        $this->registrar->void($receipt, 'Error');
+        $this->registrar->void($receipt, 'Error', 'tester');
 
         $this->assertSame(2, DetallePago::where('recibo_id', $receipt->id)->count());
         $this->get(route('prestamos.show', $this->loan))->assertOk()->assertSee('row-voided', false)->assertSee('Anulado');
@@ -188,7 +188,7 @@ class TipoPagoAndDetailTest extends TestCase
         $this->assertSame('2026-05-01', $loan->proximo_pago->toDateString());
         $this->assertEqualsWithDelta(65000000 - 5946709.19, $this->line->fresh()->disponible, 0.001);
 
-        $this->registrar->void($receipt, 'Error');
+        $this->registrar->void($receipt, 'Error', 'tester');
 
         $this->assertEqualsWithDelta(65000000 - 6000000, $this->line->fresh()->disponible, 0.001);
     }

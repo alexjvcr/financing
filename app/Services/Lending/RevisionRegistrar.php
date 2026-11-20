@@ -47,30 +47,39 @@ class RevisionRegistrar
     }
 
     /**
-     * Void a revision. Only the latest active one can be voided.
+     * Void a revision. Revisions are voided from the most recent to the oldest;
+     * the audit trail keeps who voided it and when.
      *
      * @throws ValidationException
      */
-    public function void(RevisionPrestamo $revision): RevisionPrestamo
+    public function void(RevisionPrestamo $revision, string $reason, string $user): RevisionPrestamo
     {
         $loan = $revision->prestamo;
-        $latest = $loan->revisiones()->active()->get()->last();
+        $latest = $this->latestActive($loan);
 
         if (! $revision->isActive()) {
             throw ValidationException::withMessages(['revision' => 'La revisión ya está anulada.']);
         }
 
         if ($latest?->id !== $revision->id) {
-            throw ValidationException::withMessages(['revision' => 'Solo se puede anular la última revisión registrada del sub préstamo.']);
+            throw ValidationException::withMessages(['revision' => 'Las revisiones se anulan de la más reciente a la más antigua. Anule primero la revisión #'.$latest->id.' del '.DateFormat::format($latest->fecha_efectiva).'.']);
         }
 
-        return DB::transaction(function () use ($revision, $loan): RevisionPrestamo {
-            $revision->update(['anulado_at' => now()]);
+        return DB::transaction(function () use ($revision, $loan, $reason, $user): RevisionPrestamo {
+            $revision->update(['anulado_at' => now(), 'anulado_por' => $user, 'motivo_anulacion' => $reason]);
 
             $this->schedules->refreshSnapshot($loan);
 
             return $revision;
         });
+    }
+
+    /**
+     * The most recent active revision of a loan: the only one that can be voided now.
+     */
+    public function latestActive(Prestamo $loan): ?RevisionPrestamo
+    {
+        return $loan->revisiones()->active()->get()->last();
     }
 
     /**

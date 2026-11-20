@@ -242,7 +242,7 @@
                                     <td>{{ $receipt->usuario }}</td>
                                     <td class="actions">
                                         @if (! $receipt->isActive())
-                                            <span class="badge badge-neutral" title="{{ $receipt->motivo_anulacion }}">Anulado</span>
+                                            <span class="badge badge-neutral" title="Anulado el @fechahora($receipt->anulado_at) por {{ $receipt->anulado_por ?? '—' }}: {{ $receipt->motivo_anulacion }}">Anulado</span>
                                         @elseif ($latestReceipt?->id === $receipt->id)
                                             <form method="POST" action="{{ route('recibos.anular', $receipt) }}" class="inline-form" data-confirm="¿Anular este recibo? El plan de pagos se recalculará.">
                                                 @csrf
@@ -310,6 +310,7 @@
                                         @elseif ($latestRevision?->id === $revision->id)
                                             <form method="POST" action="{{ route('revisiones.anular', $revision) }}" class="inline-form" data-confirm="¿Anular esta revisión? El plan de pagos se recalculará.">
                                                 @csrf
+                                                <input type="text" name="motivo" placeholder="Motivo" required maxlength="255" aria-label="Motivo de anulación">
                                                 <button type="submit" class="btn btn-small btn-danger"><x-icon name="x" /> Anular</button>
                                             </form>
                                         @endif

@@ -110,7 +110,7 @@
                                     @if ($receipt->isActive())
                                         <span class="badge badge-success">Activo</span>
                                     @else
-                                        <span class="badge badge-neutral" title="{{ $receipt->motivo_anulacion }}">Anulado</span>
+                                        <span class="badge badge-neutral" title="Anulado el @fechahora($receipt->anulado_at) por {{ $receipt->anulado_por ?? '—' }}: {{ $receipt->motivo_anulacion }}">Anulado</span>
                                     @endif
                                 </td>
                                 <td class="actions">

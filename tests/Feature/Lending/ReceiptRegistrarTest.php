@@ -155,13 +155,13 @@ class ReceiptRegistrarTest extends TestCase
         ]), 'tester');
 
         try {
-            $this->registrar->void($first, 'Error');
+            $this->registrar->void($first, 'Error', 'tester');
             $this->fail('Voiding an older receipt should be rejected.');
         } catch (ValidationException $exception) {
             $this->assertArrayHasKey('recibo', $exception->errors());
         }
 
-        $this->registrar->void($second, 'Monto incorrecto');
+        $this->registrar->void($second, 'Monto incorrecto', 'tester');
 
         $this->assertSame(Recibo::STATUS_VOIDED, $second->fresh()->estado);
         $this->assertSame('Monto incorrecto', $second->fresh()->motivo_anulacion);
@@ -182,7 +182,7 @@ class ReceiptRegistrarTest extends TestCase
         ], 'tester');
         $this->assertSame(Prestamo::STATUS_SETTLED, $this->loan->fresh()->estado);
 
-        $this->registrar->void($payoff, 'Duplicado');
+        $this->registrar->void($payoff, 'Duplicado', 'tester');
 
         $this->assertSame(Prestamo::STATUS_ACTIVE, $this->loan->fresh()->estado);
         $this->assertEqualsWithDelta(6000000.0, $this->loan->fresh()->saldo_prestamo, 0.001);

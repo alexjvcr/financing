@@ -20,6 +20,7 @@ class ReceiptRegistrar
     public function __construct(
         protected LoanScheduleService $schedules,
         protected ReceiptDetailWriter $details,
+        protected LegacyPlanSync $legacyPlan,
     ) {}
 
     /**
@@ -56,6 +57,7 @@ class ReceiptRegistrar
             ]);
 
             $this->details->write($receipt, $next?->number, $next?->date, $otherType, $data['descripcion_otros'] ?? null);
+            $this->legacyPlan->markPaid($receipt);
 
             $this->schedules->refreshSnapshot($loan);
 
@@ -64,35 +66,50 @@ class ReceiptRegistrar
     }
 
     /**
-     * Void a receipt. Only the latest active one can be voided so the plan
-     * never ends up with a gap in its payment sequence.
+     * Void a receipt. Receipts are voided from the most recent to the oldest, so the
+     * payment sequence never has a gap: a payment cannot be undone while a later one stands.
+     *
+     * Voiding restores the loan balance, puts the installment back to pending in the plan
+     * (and in the legacy planpagos table), refreshes the available credit of the line and
+     * leaves the audit trail: who voided it, when and why.
      *
      * @throws ValidationException
      */
-    public function void(Recibo $receipt, string $reason): Recibo
+    public function void(Recibo $receipt, string $reason, string $user): Recibo
     {
         $loan = $receipt->prestamo;
-        $latest = $loan->recibos()->active()->get()->last();
 
         if (! $receipt->isActive()) {
             throw ValidationException::withMessages(['recibo' => 'El recibo ya está anulado.']);
         }
 
+        $latest = $this->latestActive($loan);
+
         if ($latest?->id !== $receipt->id) {
-            throw ValidationException::withMessages(['recibo' => 'Solo se puede anular el último recibo registrado del sub préstamo.']);
+            throw ValidationException::withMessages(['recibo' => 'Los recibos se anulan del más reciente al más antiguo. Anule primero el recibo #'.$latest->id.' del '.DateFormat::format($latest->fecha_pago).'.']);
         }
 
-        return DB::transaction(function () use ($receipt, $loan, $reason): Recibo {
+        return DB::transaction(function () use ($receipt, $loan, $reason, $user): Recibo {
             $receipt->update([
                 'estado' => Recibo::STATUS_VOIDED,
                 'anulado_at' => now(),
+                'anulado_por' => $user,
                 'motivo_anulacion' => $reason,
             ]);
 
+            $this->legacyPlan->restore($receipt);
             $this->schedules->refreshSnapshot($loan);
 
             return $receipt;
         });
+    }
+
+    /**
+     * The most recent active receipt of a loan: the only one that can be voided now.
+     */
+    public function latestActive(Prestamo $loan): ?Recibo
+    {
+        return $loan->recibos()->active()->get()->last();
     }
 
     /**

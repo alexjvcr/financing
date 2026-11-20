@@ -7,6 +7,7 @@ use App\Models\Prestamo;
 use App\Models\Recibo;
 use App\Services\Lending\LoanScheduleService;
 use App\Services\Lending\ReceiptDetailWriter;
+use App\Support\DateFormat;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -30,6 +31,7 @@ class ImportPaidInstallments extends Command
         $imported = 0;
         $skipped = 0;
         $loanIds = [];
+        $previousDates = [];
 
         foreach ($paid as $row) {
             $alreadyImported = Recibo::query()
@@ -45,6 +47,15 @@ class ImportPaidInstallments extends Command
             }
 
             $paymentDate = substr((string) ($row->fecha_pago_real ?: $row->fecha_pago), 0, 10);
+            $note = 'Importado de planpagos';
+
+            // Payments follow the installment order: never earlier than the previous receipt of the loan.
+            $previousDate = $previousDates[$row->prestamo_id] ??= substr((string) Recibo::query()->where('prestamo_id', $row->prestamo_id)->active()->max('fecha_pago'), 0, 10) ?: null;
+            if ($previousDate !== null && $paymentDate < $previousDate) {
+                $note .= ' (fecha real de pago: '.DateFormat::format($paymentDate).')';
+                $paymentDate = $previousDate;
+            }
+            $previousDates[$row->prestamo_id] = $paymentDate;
 
             $this->line(sprintf(
                 '%s préstamo %d cuota %d  %s  principal %s  interés %s',
@@ -61,7 +72,7 @@ class ImportPaidInstallments extends Command
                     'fecha_pago' => $paymentDate,
                     'monto_principal' => $row->monto_principal,
                     'monto_interes' => $row->monto_interes,
-                    'observaciones' => 'Importado de planpagos',
+                    'observaciones' => $note,
                     'usuario' => 'IMPORTACION',
                     'estado' => Recibo::STATUS_ACTIVE,
                 ]);

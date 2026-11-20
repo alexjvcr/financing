@@ -82,9 +82,19 @@ class ReciboController extends Controller
     {
         $data = $request->validate(['motivo' => ['required', 'string', 'max:255']]);
 
-        $this->registrar->void($recibo, $data['motivo']);
+        $this->registrar->void($recibo, $data['motivo'], $request->user()->email);
 
-        return redirect()->route('prestamos.show', $recibo->prestamo_id)->with('status', 'Recibo anulado.');
+        return $this->backTo($request, $recibo->prestamo_id)->with('status', 'Recibo anulado. Se restauró el saldo del sub préstamo, su cuota y el disponible de la línea.');
+    }
+
+    /**
+     * Back to the voiding screen when the request came from it, otherwise to the loan.
+     */
+    protected function backTo(Request $request, int $loanId): RedirectResponse
+    {
+        return $request->input('volver') === 'anulaciones'
+            ? redirect()->route('anulaciones.index')
+            : redirect()->route('prestamos.show', $loanId);
     }
 
     /**

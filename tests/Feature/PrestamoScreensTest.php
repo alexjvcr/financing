@@ -158,7 +158,7 @@ class PrestamoScreensTest extends TestCase
         $this->get(route('prestamos.show', $loan))->assertOk()->assertSee('3.00%');
 
         $revision = $loan->revisiones()->firstOrFail();
-        $this->post(route('revisiones.anular', $revision))->assertRedirect(route('prestamos.show', $loan));
+        $this->post(route('revisiones.anular', $revision), ['motivo' => 'Error de captura'])->assertRedirect(route('prestamos.show', $loan));
         $this->assertNotNull($revision->fresh()->anulado_at);
 
         $this->post(route('prestamos.revisiones.store', $loan), ['fecha_efectiva' => '2026-07-01'])->assertSessionHasErrors('tasa_interes');
@@ -341,11 +341,11 @@ class PrestamoScreensTest extends TestCase
     {
         $content = $this->get(route('dashboard'))->assertOk()->getContent();
 
-        foreach (['Anulaciones', 'Reportes', 'Estado de cuenta', 'Alertas de vencimiento', 'Roles y permisos', 'Auditoría'] as $label) {
+        foreach (['Reportes', 'Estado de cuenta', 'Alertas de vencimiento', 'Roles y permisos', 'Auditoría'] as $label) {
             $this->assertMatchesRegularExpression('/class="nav-link is-disabled"[^>]*>\s*<svg.*?<\/svg>\s*'.preg_quote($label, '/').'\s*<span class="nav-badge">Pronto<\/span>/s', $content, "{$label} should be a disabled menu item.");
         }
 
-        $this->assertSame(6, substr_count($content, '<span class="nav-badge">Pronto</span>'));
+        $this->assertSame(5, substr_count($content, '<span class="nav-badge">Pronto</span>'));
         $this->assertStringNotContainsString('href="#"', $content);
     }
 

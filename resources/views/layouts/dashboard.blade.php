@@ -29,9 +29,9 @@
                     <a href="{{ route('recibos.index') }}" class="nav-link {{ request()->routeIs('recibos.index') ? 'is-active' : '' }}">
                         <x-icon name="file-text" /> Recibos
                     </a>
-                    <span class="nav-link is-disabled" aria-disabled="true" title="Disponible próximamente">
-                        <x-icon name="x" /> Anulaciones <span class="nav-badge">Pronto</span>
-                    </span>
+                    <a href="{{ route('anulaciones.index') }}" class="nav-link {{ request()->routeIs('anulaciones.index') ? 'is-active' : '' }}">
+                        <x-icon name="x" /> Anulaciones
+                    </a>
 
                     <p class="nav-section">Reportes</p>
                     @foreach ([

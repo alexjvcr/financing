@@ -98,13 +98,13 @@ class RevisionRegistrarTest extends TestCase
         $second = $this->registrar->register($this->loan, ['fecha_efectiva' => '2026-09-01', 'tasa_interes' => 0.5], 'tester');
 
         try {
-            $this->registrar->void($first);
+            $this->registrar->void($first, 'Motivo de prueba', 'tester');
             $this->fail('Voiding an older revision should be rejected.');
         } catch (ValidationException $exception) {
             $this->assertArrayHasKey('revision', $exception->errors());
         }
 
-        $this->registrar->void($second);
+        $this->registrar->void($second, 'Motivo de prueba', 'tester');
 
         $this->assertNotNull($second->fresh()->anulado_at);
         $this->assertSame(3.0, app(LoanScheduleService::class)->scheduleFor($this->loan)->currentAnnualRate);
